@@ -1,10 +1,22 @@
 name = "InteractivePresentations"
 uuid = "e0adfb67-6a19-4170-8314-b8ef321cb235"
 authors = ["Jochen Krattenmacher"]
-version = "0.1.0"
+version = "0.7.0"
 
 [compat]
 julia = "1"
+Genie = "5"
+Stipple = "0.25"
+StippleUI = "0.20"
+Mixers = "0.1"
+Reexport = "1.2"
+
+[deps]
+Genie = "c43c736e-a2d1-11e8-161f-af95117fbd1e"
+Stipple = "4acbeb90-81a0-11ea-1966-bdaff8155998"
+StippleUI = "a3c5d34a-b254-4859-a8fa-b86abb7e84a3"
+Mixers = "2a8e4939-dab8-5edc-8f64-72a8776f13de"
+Reexport = "189a3867-3050-52da-a836-e630ba90ab69"
 
 [extras]
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"

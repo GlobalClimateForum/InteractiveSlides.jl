@@ -1,1 +1,31 @@
 /Manifest.toml
+
+# Vagrant
+.vagrant
+Vagrantfile
+
+# Numerous always-ignore extensions
+*.diff
+*.err
+*.orig
+*.log
+*.rej
+*.swo
+*.swp
+*.vi
+*~
+*.sass-cache
+
+# OS or Editor folders
+.DS_Store
+.cache
+.project
+.settings
+.tmproj
+nbproject
+Thumbs.db
+*.sublime-project
+*.sublime-workspace
+.vscode
+.tags*
+.tags
