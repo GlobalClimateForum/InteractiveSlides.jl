@@ -73,7 +73,7 @@ drawer(v__model = "drawer$m_id", [
     ]; side)
 end
 
-function ui(pmodel::ReactiveModel, create_slideshow::Function, create_auxUI::Function, settings::Dict, request_params::Dict{Symbol, Any})
+function ui(pmodel::ReactiveModel, gen_content::Function, gen_auxUI::Function, settings::Dict, request_params::Dict{Symbol, Any})
     m_id = get(request_params, :monitor_id, 1)::Int
     !(0 < m_id <= m_max) && return "1 is the minimum monitor number, $m_max the maximum."
     m_id > settings[:num_monitors] && return "Only $(settings[:num_monitors]) monitors are active."
@@ -81,13 +81,13 @@ function ui(pmodel::ReactiveModel, create_slideshow::Function, create_auxUI::Fun
         push!(Stipple.Layout.THEMES, () -> [link(href = "$(settings[:folder])/theme.css", rel = "stylesheet"), ""])
         foreach(x -> empty!(x),slides[])
         Genie.Router.delete!(Symbol("get_stipple.jl_master_assets_css_stipplecore.css")) 
-        create_slideshow(pmodel)
+        gen_content(pmodel)
     end
     pmodel.num_slides[] = length(slides[][m_id])
     page(pmodel,
     [
         StippleUI.Layouts.layout(view="hHh lpR lFf", [
-            create_auxUI(m_id)
+            gen_auxUI(m_id)
             quasar(:page__container, 
                 getproperty.(slides[][m_id], :body)
             )
