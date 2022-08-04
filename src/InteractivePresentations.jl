@@ -25,9 +25,6 @@ register_mixin(@__MODULE__)
     drawer4::R{Bool} = false
 end
 
-function init_counters(pmodel::ReactiveModel) 
-end
-
 function to_fieldname(typename, id)
     replace(lowercase(string(typename, id)), "{" => "", "}" => "")
 end
@@ -113,17 +110,6 @@ end
 
 function new_handler(fun::Function, field::ManagedField)
     new_handler(fun, field.ref)
-end
-
-function rep!(e, old, new)
-    for (i,a) in enumerate(e.args)
-        if a==old
-            e.args[i] = new
-        elseif a isa Expr
-            rep!(a, old, new)
-        end
-    end
-    e
 end
 
 #endregion
