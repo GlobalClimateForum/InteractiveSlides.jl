@@ -2,6 +2,7 @@ module UI
 using ..Stipple, ..Reexport
 @reexport using StippleUI
 export ui, slide, titleslide, iftitleslide, slide_id, navcontrols, menu_slides
+export HTMLdiv, spacer, autocell, simplelist, simpleslide #convenience functions
 
 const m_max = 4 #max number of monitors. Note: Changing this does not yet allow to change the number of max monitors, as some parts are still hard-coded
 
@@ -93,6 +94,23 @@ function ui(pmodel::ReactiveModel, gen_content::Function, gen_auxUI::Function, s
             )
         ])
     ])
+end
+
+####################### CONVENIENCE FUNCTIONS ####################
+HTMLdiv(args...; kwargs...) = Genie.Renderer.Html.div(args...; kwargs...)
+
+spacer(padstr) = HTMLdiv(style = "padding:$padstr")
+
+autocell(args...; sizestr = "sm", kwargs...) = HTMLdiv(args...; class = "col-$sizestr-auto")
+
+function simplelist(args...; ordered = false, cellfun = autocell, size = 0, kwargs...)
+    if ordered listfun = ol else listfun = ul end
+    cellfun(listfun(
+        [contains(x, "<") ? x : li(x) for x in args]; kwargs...); size)
+end
+
+function simpleslide(num_monitors::Int, heading, content; row_class = "flex-center", kwargs...)
+    slide(num_monitors, heading, row(content, class = row_class); kwargs...)
 end
 
 end
