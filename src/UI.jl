@@ -82,7 +82,9 @@ function ui(pmodel::ReactiveModel, gen_content::Function, gen_auxUI::Function, s
     if isempty(slides[][1]) || get(request_params, :reset, "0") != "0" || get(request_params, :hardreset, "0") != "0"
         push!(Stipple.Layout.THEMES, () -> [link(href = "$(settings[:folder])/theme.css", rel = "stylesheet"), ""])
         foreach(x -> empty!(x),slides[])
-        Genie.Router.delete!(Symbol("get_stipple.jl_master_assets_css_stipplecore.css")) 
+        if !get(settings, :use_Stipple_theme, false)
+            Genie.Router.delete!(Symbol("get_stipple.jl_master_assets_css_stipplecore.css")) 
+        end
         gen_content(pmodel)
     end
     pmodel.num_slides[] = length(slides[][m_id])
