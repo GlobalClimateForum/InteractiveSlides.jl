@@ -1,7 +1,8 @@
 module ModelManager
 using ..Stipple
-import ..to_fieldname
+import ..to_fieldname, ..eqtokw!
 export new_field!, new_multi_field!, new_handler
+export @new_field!, @new_multi_field! #convenience functionss
 
 mutable struct ManagedField
     str::String
@@ -19,7 +20,7 @@ function new_field!(pmodel::ReactiveModel, type::String; value = Nothing)
     return ManagedField(name, name_sym, getfield(pmodel, name_sym))::ManagedField
 end
 
-function new_multi_field!(pmodel::ReactiveModel, type::String, num_monitors::Int; value = Nothing)
+function new_multi_field!(num_monitors::Int, pmodel::ReactiveModel, type::String; value = Nothing)
     [new_field!(pmodel, type; value) for i in 1:num_monitors]
 end
 
@@ -47,6 +48,16 @@ end
 
 function new_handler(fun::Function, field::ManagedField)
     new_handler(fun, field.ref)
+end
+
+####################### CONVENIENCE FUNCTIONS ####################
+
+macro new_field!(exprs...)
+    esc(:(new_field!(pmodel, $(eqtokw!(exprs)...))))
+end
+
+macro new_multi_field!(exprs...)
+    esc(:(new_multi_field!(num_m, pmodel, $(eqtokw!(exprs)...))))
 end
 
 end

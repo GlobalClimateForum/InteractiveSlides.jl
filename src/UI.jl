@@ -1,8 +1,9 @@
 module UI
 using ..Stipple, ..Reexport
+import ..eqtokw!
 @reexport using StippleUI
 export ui, slide, titleslide, iftitleslide, slide_id, navcontrols, menu_slides
-export HTMLdiv, spacer, autocell, simplelist, simpleslide #convenience functions
+export HTMLdiv, spacer, autocell, simplelist, simpleslide, @slide, @titleslide, @simpleslide #convenience functions
 
 const m_max = 4 #max number of monitors. Note: Changing this does not yet allow to change the number of max monitors, as some parts are still hard-coded
 
@@ -111,6 +112,18 @@ end
 
 function simpleslide(num_monitors::Int, heading, content; row_class = "flex-center", kwargs...)
     slide(num_monitors, heading, row(content, class = row_class); kwargs...)
+end
+
+macro slide(exprs...)
+    esc(:(slide(num_m, $(eqtokw!(exprs)...))))
+end
+
+macro titleslide(exprs...)
+    esc(:(titleslide(num_m, $(eqtokw!(exprs)...))))
+end
+
+macro simpleslide(exprs...)
+    esc(:(simpleslide(num_m, $(eqtokw!(exprs)...))))
 end
 
 end
