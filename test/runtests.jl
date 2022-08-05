@@ -1,8 +1,8 @@
-using InteractivePresentations
+using InteractiveSlides
 using Test
 
 module TestBasics
-    using ..InteractivePresentations
+    using ..InteractiveSlides
     @presentation! struct PresentationModel <: ReactiveModel
     end
 

@@ -1,4 +1,4 @@
-module InteractivePresentations
+module InteractiveSlides
 using Reexport
 @reexport using Stipple
 
