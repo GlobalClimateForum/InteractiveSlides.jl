@@ -2,7 +2,7 @@ module UI
 using ..Stipple, ..Reexport
 import ..eqtokw!
 @reexport using StippleUI
-export ui, slide, titleslide, iftitleslide, slide_id, navcontrols, menu_slides
+export Slide, ui, slide, titleslide, iftitleslide, slide_id, navcontrols, menu_slides
 export HTMLdiv, spacer, autocell, simplelist, simpleslide, @slide, @titleslide, @simpleslide #convenience functions
 
 const m_max = 4 #max number of monitors. Note: Changing this does not yet allow to change the number of max monitors, as some parts are still hard-coded
@@ -13,30 +13,24 @@ struct Slide
     body::ParsedHTMLString
 end
 
-slides = Ref{NTuple{m_max, Vector{Slide}}}(([],[],[],[])) #https://discourse.julialang.org/t/how-to-correctly-define-and-use-global-variables-in-the-module-in-julia/65720/6?u=jochen2
-
-function slide(num_monitors::Int, HTMLelem...; prepend_class = ""::String, title = ""::String, HTMLattr...)
+function slide(slides::Vector{Slide}, monitor_id::Int, HTMLelem...; prepend_class = ""::String, title = ""::String, HTMLattr...)
     HTMLattr = Dict(HTMLattr)
     if isempty(HTMLattr)
         HTMLattr = Dict{Symbol, Any}() 
     end #"text-center flex-center q-gutter-sm q-col-gutter-sm slide"
     HTMLattr[:class] = prepend_class * " " * get(HTMLattr, :class, "slide")
-    slide_id = length(slides[][1]) + 1
-    for m_id in 1:num_monitors
-        body = [replace(x,  
-                                                "m_id" => "$m_id", 
-                                    r"[0-9+](<f_id)" => y -> string(parse(Int8,y[1])+m_id-1))
-                                    for x in HTMLelem]
-        if isempty(title) 
-            try
-                title = strip(match(r"(?<=\<h[1-2]\>).+(?=<)", String(body[1])).match)
-            catch
-                title = "Untitled"; println("Warning: Untitled slide")
-            end
+    slide_id = length(slides) + 1
+    body = [x for x in HTMLelem]
+    if isempty(title) 
+        try
+            title = strip(match(r"(?<=\<h[1-2]\>).+(?=<)", String(body[1])).match)
+        catch
+            title = "Untitled"; println("Warning: Untitled slide")
         end
-        body = quasar(:page, body, @iif("$slide_id == current_id$m_id"); HTMLattr...)
-        push!(slides[][m_id], Slide(title, HTMLattr, body))
     end
+    body = quasar(:page, body, @iif("$slide_id == current_id$monitor_id"); HTMLattr...)
+    push!(slides, Slide(title, HTMLattr, body))
+    return slides
 end
 
 function titleslide(args...; prepend_class = "text-center flex-center"::String, title = ""::String, HTMLattr...)
@@ -58,42 +52,44 @@ function navcontrols(m_id::Int)
     btn("",icon="navigate_next", @click("current_id$m_id < num_slides ? current_id$m_id++ : null"))]
 end
 
-function iftitleslide(m_id::Int)
-    titleslide_ids = findall(contains.([slide.HTMLattr[:class] for slide in slides[][m_id]], "titleslide"))
+function iftitleslide(slides::Vector{Slide}, m_id::Int)
+    titleslide_ids = findall(contains.([slide.HTMLattr[:class] for slide in slides], "titleslide"))
     isempty(titleslide_ids) ? "" : @iif("!$titleslide_ids.includes(current_id$m_id)")
 end
 
 function slide_id(m_id::Int) span("", @text(Symbol("current_id$m_id")), class = "slide_id") end
 
-function menu_slides(m_id::Int, item_fun; side = "left")
+function menu_slides(slides::Vector{Slide}, m_id::Int, item_fun; side = "left")
 drawer(v__model = "drawer$m_id", [
     list([
         item(item_section(item_fun(id, title)), :clickable, @click("current_id$m_id = $(id); drawer$m_id = ! drawer$m_id")) 
         for 
-        (id, title) in enumerate(getproperty.(slides[][m_id], :title))
+        (id, title) in enumerate(getproperty.(slides, :title))
         ])
     ]; side)
 end
 
-function ui(pmodel::ReactiveModel, gen_content::Function, gen_auxUI::Function, settings::Dict, request_params::Dict{Symbol, Any})
+function ui(pmodel::ReactiveModel, gen_content::Function, settings::Dict, request_params::Dict{Symbol, Any})
     m_id = get(request_params, :monitor_id, 1)::Int
     !(0 < m_id <= m_max) && return "1 is the minimum monitor number, $m_max the maximum."
     m_id > settings[:num_monitors] && return "Only $(settings[:num_monitors]) monitors are active."
-    if isempty(slides[][1]) || get(request_params, :reset, "0") != "0" || get(request_params, :hardreset, "0") != "0"
+    if get(request_params, :reset, "0") != "0" || get(request_params, :hardreset, "0") != "0"
+        init = true
         push!(Stipple.Layout.THEMES, () -> [link(href = "$(settings[:folder])/theme.css", rel = "stylesheet"), ""])
-        foreach(x -> empty!(x),slides[])
         if !get(settings, :use_Stipple_theme, false)
             Genie.Router.delete!(Symbol("get_stipple.jl_master_assets_css_stipplecore.css")) 
         end
-        gen_content(pmodel)
+    else
+        init = any(values(pmodel.counters) .> 1) ? false : true #only initialize fields/handlers if they have not already been initialized
     end
-    pmodel.num_slides[] = length(slides[][m_id])
+    slides, auxUI = gen_content(m_id, pmodel, init)
+    pmodel.num_slides[] = length(slides)
     page(pmodel,
     [
         StippleUI.Layouts.layout(view="hHh lpR lFf", [
-            gen_auxUI(m_id)
+            auxUI,
             quasar(:page__container, 
-                getproperty.(slides[][m_id], :body)
+                getproperty.(slides, :body)
             )
         ])
     ])
@@ -112,20 +108,20 @@ function simplelist(args...; ordered = false, cellfun = autocell, size = 0, kwar
         [contains(x, "<") ? x : li(x) for x in args]; kwargs...); size)
 end
 
-function simpleslide(num_monitors::Int, heading, content; row_class = "flex-center", kwargs...)
-    slide(num_monitors, heading, row(content, class = row_class); kwargs...)
+function simpleslide(heading, content, args...; row_class = "flex-center", kwargs...)
+    slide(args..., heading, row(content, class = row_class); kwargs...)
 end
 
 macro slide(exprs...)
-    esc(:(slide(num_m, $(eqtokw!(exprs)...))))
+    esc(:(slides = slide(slides, monitor_id, $(eqtokw!(exprs)...))))
 end
 
 macro titleslide(exprs...)
-    esc(:(titleslide(num_m, $(eqtokw!(exprs)...))))
+    esc(:(slides = titleslide(slides, monitor_id, $(eqtokw!(exprs)...))))
 end
 
 macro simpleslide(exprs...)
-    esc(:(simpleslide(num_m, $(eqtokw!(exprs)...))))
+    esc(:(slides = simpleslide(slides, monitor_id, $(eqtokw!(exprs)...))))
 end
 
 end
