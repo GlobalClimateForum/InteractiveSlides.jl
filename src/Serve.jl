@@ -1,23 +1,16 @@
 module Serve
-import ..Stipple, ..ModelInit, ..ModelManager, ..UI
+import ..Stipple, ..ModelInit, ..UI
 export serve_presentation
 
 function build_presentation(PresModel::DataType, gen_content::Function, settings::Dict, request_params::Dict{Symbol, Any})
-    hardreset = get(request_params, :hardreset, "0") != "0"
-    if hardreset
+    if get(request_params, :modelreset, "0") != "0"
         pmodel = ModelInit.get_or_create_pmodel(PresModel; force_create = true)
     else
         pmodel = ModelInit.get_or_create_pmodel(PresModel)
     end
+    !get(settings, :use_Stipple_theme, false) && Stipple.Genie.Router.delete!(Symbol("get_stipple.jl_master_assets_css_stipplecore.css")) 
+    length(Stipple.Layout.THEMES) < 2 && push!(Stipple.Layout.THEMES, () -> [Stipple.link(href = "$(settings[:folder])/theme.css", rel = "stylesheet"), ""])
     println("Time to build UI:")
-    if hardreset || get(request_params, :reset, "0") != "0"
-        empty!(pmodel.counters)
-        ModelManager.reset_handlers()
-    end
-    if !get(settings, :use_Stipple_theme, false)
-        Stipple.Genie.Router.delete!(Symbol("get_stipple.jl_master_assets_css_stipplecore.css")) 
-    end
-    push!(Stipple.Layout.THEMES, () -> [Stipple.link(href = "$(settings[:folder])/theme.css", rel = "stylesheet"), ""])
     @time UI.ui(pmodel, gen_content, settings, request_params) |> Stipple.html 
 end
 

@@ -1,5 +1,5 @@
 module UI
-using ..Stipple, ..Reexport
+using ..Stipple, ..Reexport, ..ModelManager
 import ..eqtokw!
 @reexport using StippleUI
 export Slide, ui, slide, titleslide, iftitleslide, slide_id, navcontrols, menu_slides
@@ -72,10 +72,11 @@ function ui(pmodel::ReactiveModel, gen_content::Function, settings::Dict, reques
     m_id > settings[:num_monitors] && return "Only $(settings[:num_monitors]) monitors are active."
     if get(request_params, :reset, "0") != "0" || get(request_params, :hardreset, "0") != "0"
         init = true
+        ModelManager.reset_handlers()
     else
         init = isempty(pmodel.counters) ? true : false #only initialize fields/handlers if they have not already been initialized
-        empty!(pmodel.counters)
     end
+    empty!(pmodel.counters)
     slides, auxUI = gen_content(m_id, pmodel, init)
     pmodel.num_slides[] = length(slides)
     page(pmodel,

@@ -10,18 +10,18 @@ mutable struct ManagedField
     ref::Reactive
 end
 
-function new_field!(pmodel::ReactiveModel, init::Bool, type::String; value = Nothing)
+function new_field!(pmodel::ReactiveModel, init::Bool, type::String; init_val = Nothing)
     name = to_fieldname(type, get!(pmodel.counters, type, 1))
     name_sym = Symbol(name)
-    if value != Nothing && init
-        getfield(pmodel, name_sym).o.val = value
+    if init_val != Nothing && init
+        getfield(pmodel, name_sym).o.val = init_val
     end
     pmodel.counters[type] += 1
     return ManagedField(name, name_sym, getfield(pmodel, name_sym))::ManagedField
 end
 
-function new_multi_field!(num_monitors::Int, pmodel::ReactiveModel, init::Bool, type::String; value = Nothing)
-    [new_field!(pmodel, init, type; value) for i in 1:num_monitors]
+function new_multi_field!(num_monitors::Int, pmodel::ReactiveModel, init::Bool, type::String; init_val = Nothing)
+    [new_field!(pmodel, init, type; init_val) for i in 1:num_monitors]
 end
 
 function Base.getindex(field::Vector{ManagedField}, sym::Symbol)
