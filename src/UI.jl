@@ -5,8 +5,6 @@ import ..eqtokw!
 export Slide, ui, slide, titleslide, iftitleslide, slide_id, navcontrols, menu_slides
 export HTMLdiv, spacer, autocell, simplelist, simpleslide, @slide, @titleslide, @simpleslide #convenience functions
 
-const m_max = 4 #max number of monitors. Note: Changing this does not yet allow to change the number of max monitors, as some parts are still hard-coded
-
 struct Slide
     title::String
     HTMLattr::Dict
@@ -71,16 +69,12 @@ end
 
 function ui(pmodel::ReactiveModel, gen_content::Function, settings::Dict, request_params::Dict{Symbol, Any})
     m_id = get(request_params, :monitor_id, 1)::Int
-    !(0 < m_id <= m_max) && return "1 is the minimum monitor number, $m_max the maximum."
     m_id > settings[:num_monitors] && return "Only $(settings[:num_monitors]) monitors are active."
     if get(request_params, :reset, "0") != "0" || get(request_params, :hardreset, "0") != "0"
         init = true
-        push!(Stipple.Layout.THEMES, () -> [link(href = "$(settings[:folder])/theme.css", rel = "stylesheet"), ""])
-        if !get(settings, :use_Stipple_theme, false)
-            Genie.Router.delete!(Symbol("get_stipple.jl_master_assets_css_stipplecore.css")) 
-        end
     else
-        init = any(values(pmodel.counters) .> 1) ? false : true #only initialize fields/handlers if they have not already been initialized
+        init = isempty(pmodel.counters) ? true : false #only initialize fields/handlers if they have not already been initialized
+        empty!(pmodel.counters)
     end
     slides, auxUI = gen_content(m_id, pmodel, init)
     pmodel.num_slides[] = length(slides)

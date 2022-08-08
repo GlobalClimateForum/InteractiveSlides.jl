@@ -10,18 +10,18 @@ mutable struct ManagedField
     ref::Reactive
 end
 
-function new_field!(pmodel::ReactiveModel, type::String; value = Nothing)
+function new_field!(pmodel::ReactiveModel, init::Bool, type::String; value = Nothing)
     name = to_fieldname(type, get!(pmodel.counters, type, 1))
     name_sym = Symbol(name)
-    if value != Nothing
+    if value != Nothing && init
         getfield(pmodel, name_sym).o.val = value
     end
     pmodel.counters[type] += 1
     return ManagedField(name, name_sym, getfield(pmodel, name_sym))::ManagedField
 end
 
-function new_multi_field!(num_monitors::Int, pmodel::ReactiveModel, type::String; value = Nothing)
-    [new_field!(pmodel, type; value) for i in 1:num_monitors]
+function new_multi_field!(num_monitors::Int, pmodel::ReactiveModel, init::Bool, type::String; value = Nothing)
+    [new_field!(pmodel, init, type; value) for i in 1:num_monitors]
 end
 
 function Base.getindex(field::Vector{ManagedField}, sym::Symbol)
@@ -53,11 +53,11 @@ end
 ####################### CONVENIENCE FUNCTIONS ####################
 
 macro new_field!(exprs...)
-    esc(:(new_field!(pmodel, $(eqtokw!(exprs)...))))
+    esc(:(new_field!(pmodel, init, $(eqtokw!(exprs)...))))
 end
 
 macro new_multi_field!(exprs...)
-    esc(:(new_multi_field!(num_m, pmodel, $(eqtokw!(exprs)...))))
+    esc(:(new_multi_field!(num_m, pmodel, init, $(eqtokw!(exprs)...))))
 end
 
 end

@@ -13,8 +13,11 @@ function build_presentation(PresModel::DataType, gen_content::Function, settings
     if hardreset || get(request_params, :reset, "0") != "0"
         empty!(pmodel.counters)
         ModelManager.reset_handlers()
-        pop!(Stipple.Layout.THEMES)
     end
+    if !get(settings, :use_Stipple_theme, false)
+        Stipple.Genie.Router.delete!(Symbol("get_stipple.jl_master_assets_css_stipplecore.css")) 
+    end
+    push!(Stipple.Layout.THEMES, () -> [Stipple.link(href = "$(settings[:folder])/theme.css", rel = "stylesheet"), ""])
     @time UI.ui(pmodel, gen_content, settings, request_params) |> Stipple.html 
 end
 
