@@ -83,6 +83,7 @@ function ui(pmodel::ReactiveModel, gen_content::Function, settings::Dict, reques
     [
         StippleUI.Layouts.layout(view="hHh lpR lFf", [
             auxUI,
+            p(v__hotkey = "$m_id"),
             quasar(:page__container, 
                 getproperty.(slides, :body)
             )
