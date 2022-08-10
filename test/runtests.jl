@@ -8,13 +8,10 @@ module TestBasics
 
     const settings = Dict{Symbol, Any}(:folder => "test", :num_monitors => 2)
 
-    function gen_auxUI(m_id::Int)
+    function gen_content(monitor_id::Int, pmodel::PresentationModel, init::Bool)
     end
 
-    function gen_content(pmodel::PresentationModel)
-    end
-
-    serve_presentation(PresentationModel, gen_content, gen_auxUI, settings)
+    serve_presentation(PresentationModel, gen_content, settings)
 
     Genie.up()
 end
