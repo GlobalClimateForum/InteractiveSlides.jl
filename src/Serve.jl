@@ -21,7 +21,7 @@ function add_fileroute(assets_config::Genie.Assets.AssetsConfig, filename::Abstr
         Symbol("*.*")
     end : content_type
 
-    @show Genie.Router.route(Genie.Assets.asset_path(assets_config, type; file, ext, kwargs...)) do
+    Genie.Router.route(Genie.Assets.asset_path(assets_config, type; file, ext, kwargs...)) do
         Genie.Renderer.WebRenderable(
             Genie.Assets.embedded(Genie.Assets.asset_file(cwd=basedir; type, file)),
         content_type) |> Genie.Renderer.respond
@@ -50,7 +50,7 @@ function serve_presentation(PresModel::DataType, gen_content::Function, settings
         build_presentation(PresModel, gen_content, settings, Genie.params())
     end
 
-    Genie.route("/:monitor_id::Int/") do
+    Genie.route("/:team_id::Int/") do
         build_presentation(PresModel, gen_content, settings, Genie.params())
     end
 end

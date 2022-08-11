@@ -20,8 +20,8 @@ function new_field!(pmodel::ReactiveModel, init::Bool, type::String; init_val = 
     return ManagedField(name, name_sym, getfield(pmodel, name_sym))::ManagedField
 end
 
-function new_multi_field!(num_monitors::Int, pmodel::ReactiveModel, init::Bool, type::String; init_val = Nothing)
-    [new_field!(pmodel, init, type; init_val) for i in 1:num_monitors]
+function new_multi_field!(num_teams::Int, pmodel::ReactiveModel, init::Bool, type::String; init_val = Nothing)
+    [new_field!(pmodel, init, type; init_val) for i in 1:num_teams]
 end
 
 function Base.getindex(field::Vector{ManagedField}, sym::Symbol)
@@ -57,7 +57,7 @@ macro new_field!(exprs...)
 end
 
 macro new_multi_field!(exprs...)
-    esc(:(new_multi_field!(num_m, pmodel, init, $(eqtokw!(exprs)...))))
+    esc(:(new_multi_field!(num_teams, pmodel, init, $(eqtokw!(exprs)...))))
 end
 
 end

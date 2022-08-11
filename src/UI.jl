@@ -11,7 +11,7 @@ struct Slide
     body::ParsedHTMLString
 end
 
-function slide(slides::Vector{Slide}, monitor_id::Int, HTMLelem...; prepend_class = ""::String, title = ""::String, HTMLattr...)
+function slide(slides::Vector{Slide}, team_id::Int, HTMLelem...; prepend_class = ""::String, title = ""::String, HTMLattr...)
     HTMLattr = Dict(HTMLattr)
     if isempty(HTMLattr)
         HTMLattr = Dict{Symbol, Any}() 
@@ -26,7 +26,7 @@ function slide(slides::Vector{Slide}, monitor_id::Int, HTMLelem...; prepend_clas
             title = "Untitled"; println("Warning: Untitled slide")
         end
     end
-    body = quasar(:page, body, @iif("$slide_id == current_id$monitor_id"); HTMLattr...)
+    body = quasar(:page, body, @iif("$slide_id == current_id$team_id"); HTMLattr...)
     push!(slides, Slide(title, HTMLattr, body))
     return slides
 end
@@ -44,23 +44,23 @@ function titleslide(args...; prepend_class = "text-center flex-center"::String, 
     end
 end
 
-function navcontrols(m_id::Int)
-    [btn("",icon="menu", @click("drawer$m_id = ! drawer$m_id"))
-    btn("",icon="chevron_left", @click("current_id$m_id > 1 ? current_id$m_id-- : null"))
-    btn("",icon="navigate_next", @click("current_id$m_id < num_slides ? current_id$m_id++ : null"))]
+function navcontrols(t_id::Int)
+    [btn("",icon="menu", @click("drawer$t_id = ! drawer$t_id"))
+    btn("",icon="chevron_left", @click("current_id$t_id > 1 ? current_id$t_id-- : null"))
+    btn("",icon="navigate_next", @click("current_id$t_id < num_slides ? current_id$t_id++ : null"))]
 end
 
-function iftitleslide(slides::Vector{Slide}, m_id::Int)
+function iftitleslide(slides::Vector{Slide}, t_id::Int)
     titleslide_ids = findall(contains.([slide.HTMLattr[:class] for slide in slides], "titleslide"))
-    isempty(titleslide_ids) ? "" : @iif("!$titleslide_ids.includes(current_id$m_id)")
+    isempty(titleslide_ids) ? "" : @iif("!$titleslide_ids.includes(current_id$t_id)")
 end
 
-function slide_id(m_id::Int) span("", @text(Symbol("current_id$m_id")), class = "slide_id") end
+function slide_id(t_id::Int) span("", @text(Symbol("current_id$t_id")), class = "slide_id") end
 
-function menu_slides(slides::Vector{Slide}, m_id::Int, item_fun; side = "left")
-drawer(v__model = "drawer$m_id", [
+function menu_slides(slides::Vector{Slide}, t_id::Int, item_fun; side = "left")
+drawer(v__model = "drawer$t_id", [
     list([
-        item(item_section(item_fun(id, title)), :clickable, @click("current_id$m_id = $(id); drawer$m_id = ! drawer$m_id")) 
+        item(item_section(item_fun(id, title)), :clickable, @click("current_id$t_id = $(id); drawer$t_id = ! drawer$t_id")) 
         for 
         (id, title) in enumerate(getproperty.(slides, :title))
         ])
@@ -68,8 +68,8 @@ drawer(v__model = "drawer$m_id", [
 end
 
 function ui(pmodel::ReactiveModel, gen_content::Function, settings::Dict, request_params::Dict{Symbol, Any})
-    m_id = get(request_params, :monitor_id, 1)::Int
-    m_id > settings[:num_monitors] && return "Only $(settings[:num_monitors]) monitors are active."
+    t_id = get(request_params, :team_id, 1)::Int
+    t_id > settings[:num_teams] && return "Only $(settings[:num_teams]) teams can participate as per current settings."
     if get(request_params, :reset, "0") != "0" || get(request_params, :hardreset, "0") != "0"
         init = true
         ModelManager.reset_handlers()
@@ -77,13 +77,13 @@ function ui(pmodel::ReactiveModel, gen_content::Function, settings::Dict, reques
         init = isempty(pmodel.counters) ? true : false #only initialize fields/handlers if they have not already been initialized
     end
     empty!(pmodel.counters)
-    slides, auxUI = gen_content(m_id, pmodel, init)
+    slides, auxUI = gen_content(t_id, pmodel, init)
     pmodel.num_slides[] = length(slides)
     page(pmodel,
     [
         StippleUI.Layouts.layout(view="hHh lpR lFf", [
             auxUI,
-            p(v__hotkey = "$m_id"),
+            p(v__hotkey = "$t_id"),
             quasar(:page__container, 
                 getproperty.(slides, :body)
             )
@@ -109,15 +109,15 @@ function simpleslide(heading, content, args...; row_class = "flex-center", kwarg
 end
 
 macro slide(exprs...)
-    esc(:(slides = slide(slides, monitor_id, $(eqtokw!(exprs)...))))
+    esc(:(slides = slide(slides, team_id, $(eqtokw!(exprs)...))))
 end
 
 macro titleslide(exprs...)
-    esc(:(slides = titleslide(slides, monitor_id, $(eqtokw!(exprs)...))))
+    esc(:(slides = titleslide(slides, team_id, $(eqtokw!(exprs)...))))
 end
 
 macro simpleslide(exprs...)
-    esc(:(slides = simpleslide(slides, monitor_id, $(eqtokw!(exprs)...))))
+    esc(:(slides = simpleslide(slides, team_id, $(eqtokw!(exprs)...))))
 end
 
 end
