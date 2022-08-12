@@ -104,8 +104,8 @@ function simplelist(args...; ordered = false, cellfun = autocell, size = 0, kwar
         [contains(x, "<") ? x : li(x) for x in args]; kwargs...); size)
 end
 
-function simpleslide(heading, content, args...; row_class = "flex-center", kwargs...)
-    slide(args..., heading, row(content, class = row_class); kwargs...)
+function simpleslide(slides, team_id, heading, content, args...; row_class = "flex-center", kwargs...)
+    slide(slides, team_id, args..., heading, row(content, class = row_class); kwargs...)
 end
 
 macro slide(exprs...)
