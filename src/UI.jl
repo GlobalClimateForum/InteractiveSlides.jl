@@ -3,7 +3,7 @@ using ..Stipple, ..Reexport, ..ModelManager
 import ..eqtokw!
 @reexport using StippleUI
 export Slide, ui, slide, titleslide, iftitleslide, slide_id, navcontrols, menu_slides
-export HTMLdiv, spacer, autocell, simplelist, simpleslide, @slide, @titleslide, @simpleslide #convenience functions
+export spacer, autocell, simplelist, simpleslide, @slide, @titleslide, @simpleslide #convenience functions
 
 struct Slide
     title::String
@@ -83,7 +83,7 @@ function ui(pmodel::ReactiveModel, gen_content::Function, settings::Dict, reques
     [
         StippleUI.Layouts.layout(view="hHh lpR lFf", [
             auxUI,
-            p(v__hotkey = "$t_id"),
+            Html.div(v__hotkey = "$t_id"),
             quasar(:page__container, 
                 getproperty.(slides, :body)
             )
@@ -92,11 +92,9 @@ function ui(pmodel::ReactiveModel, gen_content::Function, settings::Dict, reques
 end
 
 ####################### CONVENIENCE FUNCTIONS ####################
-HTMLdiv(args...; kwargs...) = Genie.Renderer.Html.div(args...; kwargs...)
+spacer(padstr) = Html.div(style = "padding:$padstr")
 
-spacer(padstr) = HTMLdiv(style = "padding:$padstr")
-
-autocell(args...; sizestr = "sm", kwargs...) = HTMLdiv(args...; class = "col-$sizestr-auto")
+autocell(args...; sizestr = "sm", kwargs...) = Html.div(args...; class = "col-$sizestr-auto")
 
 function simplelist(args...; ordered = false, cellfun = autocell, size = 0, kwargs...)
     if ordered listfun = ol else listfun = ul end
