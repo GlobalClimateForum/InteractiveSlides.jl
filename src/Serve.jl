@@ -39,7 +39,8 @@ function build_presentation(PresModel::DataType, gen_content::Function, settings
     Stipple.DEPS[:hotkey] = () -> [Stipple.script(src = "/stippleui.jl/master/assets/js/hotkey.js")]
 
     !get(settings, :use_Stipple_theme, false) && Genie.Router.delete!(Symbol("get_stipple.jl_master_assets_css_stipplecore.css")) 
-    length(Stipple.Layout.THEMES) < 2 && push!(Stipple.Layout.THEMES, () -> [Stipple.link(href = "$(settings[:folder])/theme.css", rel = "stylesheet"), ""])
+    folder = get(settings, :folder, "")
+    length(Stipple.Layout.THEMES) < 2 && push!(Stipple.Layout.THEMES, () -> [Stipple.link(href = "$folder/theme.css", rel = "stylesheet"), ""])
     
     println("Time to build UI:")
     @time UI.ui(pmodel, gen_content, settings, request_params) |> Stipple.html 
