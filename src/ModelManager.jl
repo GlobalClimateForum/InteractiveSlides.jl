@@ -1,8 +1,8 @@
 module ModelManager
 using ..Stipple
 import ..to_fieldname, ..eqtokw!
-export new_field!, new_multi_field!, new_handler
-export @new_field!, @new_multi_field! #convenience functionss
+export use_field!, use_fields!, new_handler
+export @use_field!, @use_fields! #convenience functionss
 
 mutable struct ManagedField
     str::String
@@ -10,7 +10,7 @@ mutable struct ManagedField
     ref::Reactive
 end
 
-function new_field!(pmodel::ReactiveModel, init::Bool, type::String; init_val = Nothing)
+function use_field!(pmodel::ReactiveModel, init::Bool, type::String; init_val = Nothing)
     name = to_fieldname(type, get!(pmodel.counters, type, 1))
     name_sym = Symbol(name)
     if init_val != Nothing && init
@@ -20,8 +20,8 @@ function new_field!(pmodel::ReactiveModel, init::Bool, type::String; init_val = 
     return ManagedField(name, name_sym, getfield(pmodel, name_sym))::ManagedField
 end
 
-function new_multi_field!(num_teams::Int, pmodel::ReactiveModel, init::Bool, type::String; init_val = Nothing)
-    [new_field!(pmodel, init, type; init_val) for i in 1:num_teams]
+function use_fields!(num_teams::Int, pmodel::ReactiveModel, init::Bool, type::String; init_val = Nothing)
+    [use_field!(pmodel, init, type; init_val) for i in 1:num_teams]
 end
 
 function Base.getindex(field::Vector{ManagedField}, sym::Symbol)
@@ -52,12 +52,12 @@ end
 
 ####################### CONVENIENCE FUNCTIONS ####################
 
-macro new_field!(exprs...)
-    esc(:(new_field!(pmodel, init, $(eqtokw!(exprs)...))))
+macro use_field!(exprs...)
+    esc(:(use_field!(pmodel, init, $(eqtokw!(exprs)...))))
 end
 
-macro new_multi_field!(exprs...)
-    esc(:(new_multi_field!(num_teams, pmodel, init, $(eqtokw!(exprs)...))))
+macro use_fields!(exprs...)
+    esc(:(use_fields!(num_teams, pmodel, init, $(eqtokw!(exprs)...))))
 end
 
 end
