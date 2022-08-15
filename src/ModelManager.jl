@@ -10,18 +10,18 @@ mutable struct ManagedField
     ref::Reactive
 end
 
-function use_field!(pmodel::ReactiveModel, init::Bool, type::String; init_val = Nothing)
+function use_field!(pmodel::ReactiveModel, params::Dict, type::String; init_val = Nothing)
     name = to_fieldname(type, get!(pmodel.counters, type, 1))
     name_sym = Symbol(name)
-    if init_val != Nothing && init
+    if init_val != Nothing && params[:init]
         getfield(pmodel, name_sym).o.val = init_val
     end
     pmodel.counters[type] += 1
     return ManagedField(name, name_sym, getfield(pmodel, name_sym))::ManagedField
 end
 
-function use_fields!(num_teams::Int, pmodel::ReactiveModel, init::Bool, type::String; init_val = Nothing)
-    [use_field!(pmodel, init, type; init_val) for i in 1:num_teams]
+function use_fields!(pmodel::ReactiveModel, params::Dict, type::String; init_val = Nothing)
+    [use_field!(pmodel, params, type; init_val) for _ in 1:params[:num_teams]]
 end
 
 function Base.getindex(field::Vector{ManagedField}, sym::Symbol)
@@ -53,11 +53,11 @@ end
 ####################### CONVENIENCE FUNCTIONS ####################
 
 macro use_field!(exprs...)
-    esc(:(use_field!(pmodel, init, $(eqtokw!(exprs)...))))
+    esc(:(use_field!(pmodel, params, $(eqtokw!(exprs)...))))
 end
 
 macro use_fields!(exprs...)
-    esc(:(use_fields!(num_teams, pmodel, init, $(eqtokw!(exprs)...))))
+    esc(:(use_fields!(pmodel, params, $(eqtokw!(exprs)...))))
 end
 
 end

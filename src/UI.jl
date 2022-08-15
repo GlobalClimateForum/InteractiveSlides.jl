@@ -11,7 +11,7 @@ struct Slide
     body::ParsedHTMLString
 end
 
-function slide(slides::Vector{Slide}, team_id::Int, HTMLelem...; prepend_class = ""::String, title = ""::String, HTMLattr...)
+function slide(slides::Vector{Slide}, params::Dict, HTMLelem...; prepend_class = ""::String, title = ""::String, HTMLattr...)
     HTMLattr = Dict(HTMLattr)
     if isempty(HTMLattr)
         HTMLattr = Dict{Symbol, Any}() 
@@ -26,7 +26,7 @@ function slide(slides::Vector{Slide}, team_id::Int, HTMLelem...; prepend_class =
             title = "Untitled"; println("Warning: Untitled slide")
         end
     end
-    body = quasar(:page, body, @iif("$slide_id == current_id$team_id"); HTMLattr...)
+    body = quasar(:page, body, @iif("$slide_id == current_id$(params[:team_id]) + $(params[:shift])"); HTMLattr...)
     push!(slides, Slide(title, HTMLattr, body))
     return slides
 end
@@ -68,22 +68,24 @@ drawer(v__model = "drawer$t_id", [
 end
 
 function ui(pmodel::ReactiveModel, gen_content::Function, settings::Dict, request_params::Dict{Symbol, Any})
-    t_id = get(request_params, :team_id, 1)::Int
-    t_id > settings[:num_teams] && return "Only $(settings[:num_teams]) teams can participate as per current settings."
+    params = merge(settings, request_params)
+    params[:team_id] = get(request_params, :team_id, 1)::Int
+    params[:team_id] > settings[:num_teams] && return "Only $(settings[:num_teams]) teams can participate as per current settings."
     if get(request_params, :reset, "0") != "0" || get(request_params, :hardreset, "0") != "0"
-        init = true
+        params[:init] = true
         ModelManager.reset_handlers()
     else
-        init = isempty(pmodel.counters) ? true : false #only initialize fields/handlers if they have not already been initialized
+        params[:init] = isempty(pmodel.counters) ? true : false #only initialize fields/handlers if they have not already been initialized
     end
+    params[:shift] = try parse(Int, get(request_params, :shift, "0")); catch; return "Shift parameter needs to be an integer."; end
     empty!(pmodel.counters)
-    slides, auxUI = gen_content(t_id, pmodel, init)
+    slides, auxUI = gen_content(pmodel, params)
     pmodel.num_slides[] = length(slides)
     page(pmodel,
     [
         StippleUI.Layouts.layout(view="hHh lpR lFf", [
             auxUI,
-            Html.div(v__hotkey = "$t_id"),
+            Html.div(v__hotkey = "$(params[:team_id])"),
             quasar(:page__container, 
                 getproperty.(slides, :body)
             )
@@ -102,20 +104,20 @@ function simplelist(args...; ordered = false, cellfun = autocell, size = 0, kwar
         [contains(x, "<") ? x : li(x) for x in args]; kwargs...); size)
 end
 
-function simpleslide(slides, team_id, heading, content, args...; row_class = "flex-center", kwargs...)
-    slide(slides, team_id, args..., heading, row(content, class = row_class); kwargs...)
+function simpleslide(slides, params, heading, content, args...; row_class = "flex-center", kwargs...)
+    slide(slides, params, args..., heading, row(content, class = row_class); kwargs...)
 end
 
 macro slide(exprs...)
-    esc(:(slides = slide(slides, team_id, $(eqtokw!(exprs)...))))
+    esc(:(slides = slide(slides, params, $(eqtokw!(exprs)...))))
 end
 
 macro titleslide(exprs...)
-    esc(:(slides = titleslide(slides, team_id, $(eqtokw!(exprs)...))))
+    esc(:(slides = titleslide(slides, params, $(eqtokw!(exprs)...))))
 end
 
 macro simpleslide(exprs...)
-    esc(:(slides = simpleslide(slides, team_id, $(eqtokw!(exprs)...))))
+    esc(:(slides = simpleslide(slides, params, $(eqtokw!(exprs)...))))
 end
 
 end
