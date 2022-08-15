@@ -8,7 +8,7 @@ module TestBasics
 
     const settings = Dict{Symbol, Any}(:folder => "test", :num_teams => 2)
 
-    function gen_content(team_id::Int, pmodel::PresentationModel, init::Bool)
+    function gen_content(pmodel::PresentationModel, params::Dict)
     end
 
     serve_presentation(PresentationModel, gen_content, settings)
