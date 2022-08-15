@@ -44,27 +44,29 @@ function titleslide(args...; prepend_class = "text-center flex-center"::String, 
     end
 end
 
-function navcontrols(t_id::Int)
-    [btn("",icon="menu", @click("drawer$t_id = ! drawer$t_id"))
+function navcontrols(params::Dict)
+    t_id = params[:team_id]
+    drawerstr = params[:is_controller] ? "drawer_controller$t_id" : "drawer$t_id"
+    [btn("",icon="menu", @click("$drawerstr = ! $drawerstr"))
     btn("",icon="chevron_left", @click("current_id$t_id > 1 ? current_id$t_id-- : null"))
     btn("",icon="navigate_next", @click("current_id$t_id < num_slides ? current_id$t_id++ : null"))]
 end
 
-function iftitleslide(slides::Vector{Slide}, t_id::Int)
+function iftitleslide(slides::Vector{Slide}, params::Dict)
     titleslide_ids = findall(contains.([slide.HTMLattr[:class] for slide in slides], "titleslide"))
-    isempty(titleslide_ids) ? "" : @iif("!$titleslide_ids.includes(current_id$t_id)")
+    isempty(titleslide_ids) ? "" : @iif("!$titleslide_ids.includes(current_id$(params[:team_id]))")
 end
 
-function slide_id(t_id::Int) span("", @text(Symbol("current_id$t_id")), class = "slide_id") end
+function slide_id(params::Dict) span("", @text(Symbol("current_id$(params[:team_id])")), class = "slide_id") end
 
-function menu_slides(slides::Vector{Slide}, t_id::Int, item_fun; side = "left")
-drawer(v__model = "drawer$t_id", [
-    list([
-        item(item_section(item_fun(id, title)), :clickable, @click("current_id$t_id = $(id); drawer$t_id = ! drawer$t_id")) 
-        for 
-        (id, title) in enumerate(getproperty.(slides, :title))
-        ])
-    ]; side)
+function menu_slides(slides::Vector{Slide}, params::Dict, item_fun; side = "left")
+    t_id = params[:team_id]
+    drawerstr = params[:is_controller] ? "drawer_controller$t_id" : "drawer$t_id"
+    drawer_js = params[:persist_drawer] ? "" : "; $drawerstr = ! $drawerstr"
+    listHTML = list([item(item_section(item_fun(id, title)), 
+        :clickable, @click("current_id$t_id = $(id)" * drawer_js)) 
+        for (id, title) in enumerate(getproperty.(slides, :title))])
+    drawer(v__model = drawerstr, listHTML; side)
 end
 
 function ui(pmodel::ReactiveModel, gen_content::Function, settings::Dict, request_params::Dict{Symbol, Any})
@@ -78,6 +80,8 @@ function ui(pmodel::ReactiveModel, gen_content::Function, settings::Dict, reques
         params[:init] = isempty(pmodel.counters) ? true : false #only initialize fields/handlers if they have not already been initialized
     end
     params[:shift] = try parse(Int, get(request_params, :shift, "0")); catch; return "Shift parameter needs to be an integer."; end
+    params[:persist_drawer] = try parse(Bool, get(params, :persist_drawer, "0")); catch; return "persist_drawer parameter needs to be 0, 1 true, or false."; end
+    params[:is_controller] = params[:shift] != 0
     empty!(pmodel.counters)
     slides, auxUI = gen_content(pmodel, params)
     pmodel.num_slides[] = length(slides)

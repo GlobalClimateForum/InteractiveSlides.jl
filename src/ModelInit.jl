@@ -16,6 +16,11 @@ Mixers.@mix Stipple.@with_kw struct presentation!
     drawer2::R{Bool} = false
     drawer3::R{Bool} = false
     drawer4::R{Bool} = false
+    drawer_controller0::R{Bool} = false
+    drawer_controller1::R{Bool} = false
+    drawer_controller2::R{Bool} = false
+    drawer_controller3::R{Bool} = false
+    drawer_controller4::R{Bool} = false
 end
 
 
