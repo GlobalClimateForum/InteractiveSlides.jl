@@ -21,12 +21,20 @@ function build_presentation(PresModel::DataType, gen_content::Function, settings
 end
 
 function serve_presentation(PresModel::DataType, gen_content::Function, settings::Dict)
+    pmodel = ModelInit.get_or_create_pmodel(PresModel)
+    pmodel.num_teams[] = settings[:num_teams_default]
+
     Genie.route("/") do
         build_presentation(PresModel, gen_content, settings, Genie.params())
     end
 
     Genie.route("/:team_id::Int/") do
         build_presentation(PresModel, gen_content, settings, Genie.params())
+    end
+
+    Genie.route("/settings") do
+        pmodel = ModelInit.get_or_create_pmodel(PresModel)
+        UI.ui_setting(pmodel) |> Stipple.html
     end
 end
 

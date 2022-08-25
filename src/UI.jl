@@ -2,7 +2,7 @@ module UI
 using ..Stipple, ..Reexport, ..ModelManager
 import ..eqtokw!
 @reexport using StippleUI
-export Slide, ui, slide, titleslide, iftitleslide, slide_id, navcontrols, menu_slides
+export Slide, ui, ui_setting, slide, titleslide, iftitleslide, slide_id, navcontrols, menu_slides
 export spacer, autocell, simplelist, simpleslide, @slide, @titleslide, @simpleslide #convenience functions
 
 struct Slide
@@ -71,15 +71,17 @@ end
 
 function ui(pmodel::ReactiveModel, gen_content::Function, settings::Dict, request_params::Dict{Symbol, Any})
     params = merge(settings, request_params)
-    params[:team_id] = get(request_params, :team_id, 1)::Int
-    params[:team_id] > settings[:num_teams] && return "Only $(settings[:num_teams]) teams can participate as per current settings."
-    if get(request_params, :reset, "0") != "0" || get(request_params, :hardreset, "0") != "0"
+    params[:num_teams] = pmodel.num_teams[]
+    get!(params, :team_id, 1)
+    params[:team_id] > params[:num_teams] && return "Only $(params[:num_teams]) teams can participate as per current settings."
+    if get(params, :reset, "0") != "0" || get(params, :hardreset, "0") != "0" || pmodel.reset_required[]
         params[:init] = true
         ModelManager.reset_handlers()
+        pmodel.reset_required[] = false
     else
         params[:init] = isempty(pmodel.counters) ? true : false #only initialize fields/handlers if they have not already been initialized
     end
-    params[:shift] = try parse(Int, get(request_params, :shift, "0")); catch; return "Shift parameter needs to be an integer."; end
+    params[:shift] = try parse(Int, get(params, :shift, "0")); catch; return "Shift parameter needs to be an integer."; end
     params[:persist_drawer] = try parse(Bool, get(params, :persist_drawer, "0")); catch; return "persist_drawer parameter needs to be 0, 1 true, or false."; end
     params[:is_controller] = params[:shift] != 0
     empty!(pmodel.counters)
@@ -94,6 +96,14 @@ function ui(pmodel::ReactiveModel, gen_content::Function, settings::Dict, reques
                 getproperty.(slides, :body)
             )
         ])
+    ])
+end
+
+function ui_setting(pmodel::ReactiveModel)
+    page(pmodel, [h2("Settings", style = "margin: 1rem"), row([
+        cell(p("Number of teams"); size = 3), 
+        cell(slider(1:1:4, :num_teams; draggable = true, snap = true, step = 1, marker__labels = true); size = 5)
+        ], class = "flex-center")
     ])
 end
 

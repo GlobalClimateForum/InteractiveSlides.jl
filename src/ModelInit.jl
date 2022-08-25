@@ -5,6 +5,8 @@ export @presentation!, @addfields, get_or_create_pmodel, PresentationModel, rese
 Mixers.@mix Stipple.@with_kw struct presentation!
     Stipple.@reactors #This line is from the definition of reactive! (Stipple.jl)
     counters::Dict{String, Int8} = Dict()
+    reset_required::R{Bool} = false
+    num_teams::R{Int8} = 1
     num_slides::R{Int8} = 0
     current_id0::R{Int8} = 1
     current_id1::R{Int8} = 1
@@ -37,6 +39,10 @@ function create_pmodel(PresentationModel)
     Stipple.on(pmodel.isready) do ready
         ready || return
         push!(pmodel)        
+    end
+
+    Stipple.on(pmodel.num_teams) do _
+        pmodel.reset_required[] = 1
     end
 
     return pmodel
