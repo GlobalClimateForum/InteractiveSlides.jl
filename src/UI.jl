@@ -83,7 +83,7 @@ function ui(pmodel::ReactiveModel, gen_content::Function, settings::Dict, reques
     end
     params[:shift] = try parse(Int, get(params, :shift, "0")); catch; return "Shift parameter needs to be an integer."; end
     params[:persist_drawer] = try parse(Bool, get(params, :persist_drawer, "0")); catch; return "persist_drawer parameter needs to be 0, 1 true, or false."; end
-    params[:is_controller] = params[:shift] != 0
+    params[:is_controller] = params[:shift] != 0 || get(params, :ctrl, "0") == "1"
     empty!(pmodel.counters)
     slides, auxUI = gen_content(pmodel, params)
     pmodel.num_slides[] = length(slides)

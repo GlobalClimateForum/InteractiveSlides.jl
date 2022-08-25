@@ -8,17 +8,14 @@ Mixers.@mix Stipple.@with_kw struct presentation!
     reset_required::R{Bool} = false
     num_teams::R{Int8} = 1
     num_slides::R{Int8} = 0
-    current_id0::R{Int8} = 1
     current_id1::R{Int8} = 1
     current_id2::R{Int8} = 1
     current_id3::R{Int8} = 1
     current_id4::R{Int8} = 1
-    drawer0::R{Bool} = false
     drawer1::R{Bool} = false
     drawer2::R{Bool} = false
     drawer3::R{Bool} = false
     drawer4::R{Bool} = false
-    drawer_controller0::R{Bool} = false
     drawer_controller1::R{Bool} = false
     drawer_controller2::R{Bool} = false
     drawer_controller3::R{Bool} = false
