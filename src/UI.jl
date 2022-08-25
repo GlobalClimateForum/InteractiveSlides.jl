@@ -1,7 +1,7 @@
 module UI
-using ..Stipple, ..Reexport, ..ModelManager
-import ..eqtokw!
-@reexport using StippleUI
+using ..Stipple
+import ..eqtokw!, ..Reexport, ..ModelManager
+Reexport.@reexport using StippleUI
 export Slide, ui, ui_setting, slide, titleslide, iftitleslide, slide_id, navcontrols, menu_slides
 export spacer, autocell, simplelist, simpleslide, @slide, @titleslide, @simpleslide #convenience functions
 
