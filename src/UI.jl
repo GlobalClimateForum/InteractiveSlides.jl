@@ -94,7 +94,7 @@ function ui(pmodel::ReactiveModel, gen_content::Function, request_params::Dict{S
             quasar(:page__container, 
                 getproperty.(slides, :body)
             )
-        ])
+        ], v__cloak = true) #https://v2.vuejs.org/v2/api/#v-cloak
     ])
 end
 
