@@ -6,12 +6,10 @@ module TestBasics
     @presentation! struct PresentationModel <: ReactiveModel
     end
 
-    const settings = Dict{Symbol, Any}(:folder => "test", :num_teams => 2)
-
     function gen_content(pmodel::PresentationModel, params::Dict)
     end
 
-    serve_presentation(PresentationModel, gen_content, settings)
+    serve_presentation(PresentationModel, gen_content)
 
     Genie.up()
 end

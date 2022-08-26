@@ -69,10 +69,10 @@ function menu_slides(slides::Vector{Slide}, params::Dict, item_fun; side = "left
     drawer(v__model = drawerstr, listHTML; side)
 end
 
-function ui(pmodel::ReactiveModel, gen_content::Function, settings::Dict, request_params::Dict{Symbol, Any})
-    params = merge(settings, request_params)
-    params[:num_teams] = pmodel.num_teams[]
-    params[:team_id] > params[:num_teams] && return "Only $(params[:num_teams]) teams can participate as per current settings."
+function ui(pmodel::ReactiveModel, gen_content::Function, request_params::Dict{Symbol, Any}; kwargs...)
+    params = merge!(Dict{Symbol, Any}(kwargs), request_params)
+    println(params)
+    params[:team_id] > pmodel.num_teams[] && return "Only $(pmodel.num_teams[]) teams can participate as per current settings."
     if get(params, :reset, "0") != "0" || get(params, :hardreset, "0") != "0" || pmodel.reset_required[]
         params[:init] = true
         ModelManager.reset_handlers()
@@ -81,8 +81,8 @@ function ui(pmodel::ReactiveModel, gen_content::Function, settings::Dict, reques
         params[:init] = isempty(pmodel.counters) ? true : false #only initialize fields/handlers if they have not already been initialized
     end
     params[:shift] = try parse(Int, get(params, :shift, "0")); catch; return "Shift parameter needs to be an integer."; end
-    params[:persist_drawer] = try parse(Bool, get(params, :persist_drawer, "0")); catch; return "persist_drawer parameter needs to be 0, 1 true, or false."; end
     params[:is_controller] = params[:shift] != 0 || get(params, :ctrl, "0") == "1"
+    params[:persist_drawer] = params[:is_controller] #persist the drawer for controllers
     empty!(pmodel.counters)
     slides, auxUI = gen_content(pmodel, params)
     pmodel.num_slides[] = length(slides)
@@ -107,7 +107,7 @@ end
 
 function ui_landing(pmodel::ReactiveModel)
     page(pmodel, [h2("Welcome", style = "margin: 1rem"), list(
-        append!([item(item_section("""<a href="$id">Team $id</a> <a href="$id?ctrl=1">Team $id controller</a>""")) for id in 1:pmodel.num_teams[]], [item(item_section(a("Settings", href = "settings")))])
+        append!(["""<a href="$id">Team $id</a> <a href="$id?ctrl=1">Controller $id</a><br>""" for id in 1:pmodel.num_teams[]], [item(item_section(a("Settings", href = "settings")))])
         )], class = "landing-page")
 end
 

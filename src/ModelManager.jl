@@ -21,7 +21,7 @@ function use_field!(pmodel::ReactiveModel, params::Dict, type::String; init_val 
 end
 
 function use_fields!(pmodel::ReactiveModel, params::Dict, type::String; init_val = Nothing)
-    [use_field!(pmodel, params, type; init_val) for _ in 1:params[:num_teams]]
+    [use_field!(pmodel, params, type; init_val) for _ in 1:pmodel.num_teams[]]
 end
 
 function Base.getindex(field::Vector{ManagedField}, sym::Symbol)
