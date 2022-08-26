@@ -44,12 +44,13 @@ function titleslide(args...; prepend_class = "text-center flex-center"::String, 
     end
 end
 
+# see hotkeys.js for similar logic (if anyone has any idea for how to reduce that redundancy, go ahead!)
 function navcontrols(params::Dict)
     t_id = params[:team_id]
     drawerstr = params[:is_controller] ? "drawer_controller$t_id" : "drawer$t_id"
     [btn("",icon="menu", @click("$drawerstr = ! $drawerstr"))
-    btn("",icon="chevron_left", @click("current_id$t_id > 1 ? current_id$t_id-- : null"))
-    btn("",icon="navigate_next", @click("current_id$t_id < num_slides ? current_id$t_id++ : null"))]
+    btn("",icon="chevron_left", @click("slide_state$t_id == 1 ? current_id$t_id > 1 ? (current_id$t_id--, slide_state$t_id = num_states[current_id$t_id-1]) : null : slide_state$t_id--"))
+    btn("",icon="navigate_next", @click("slide_state$t_id == num_states[current_id$t_id-1] ? current_id$t_id < num_slides ? (current_id$t_id++, slide_state$t_id = 1) : null : slide_state$t_id++"))]
 end
 
 function iftitleslide(slides::Vector{Slide}, params::Dict)
@@ -71,7 +72,6 @@ end
 
 function ui(pmodel::ReactiveModel, gen_content::Function, request_params::Dict{Symbol, Any}; kwargs...)
     params = merge!(Dict{Symbol, Any}(kwargs), request_params)
-    println(params)
     params[:team_id] > pmodel.num_teams[] && return "Only $(pmodel.num_teams[]) teams can participate as per current settings."
     if get(params, :reset, "0") != "0" || get(params, :hardreset, "0") != "0" || pmodel.reset_required[]
         params[:init] = true
@@ -86,6 +86,7 @@ function ui(pmodel::ReactiveModel, gen_content::Function, request_params::Dict{S
     empty!(pmodel.counters)
     slides, auxUI = gen_content(pmodel, params)
     pmodel.num_slides[] = length(slides)
+    pmodel.num_states[] = ones(Int, length(slides))
     page(pmodel,
     [
         StippleUI.Layouts.layout(view="hHh lpR lFf", [

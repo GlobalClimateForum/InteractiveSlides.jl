@@ -8,13 +8,16 @@ Vue.directive('hotkey', {
       this._keyListener = function(e) {
         team_id = binding.expression
         current_id = 'PresentationModel.current_id' + team_id
+        slide_state = 'PresentationModel.slide_state' + team_id
+        num_states = 'PresentationModel.num_states[' + current_id + '-1]'
         drawer = 'PresentationModel.drawer' + team_id
         drawer_controller = 'PresentationModel.drawer_controller' + team_id
+        // the logic below could also be implemented in the form of listeners on slide_state instead (see commit for version 0.18.2), however, the below solution is more performant (immediate switch between slides)
         if (e.key === "ArrowRight") {
-          eval(current_id + '< PresentationModel.num_slides ?' + current_id + '++ : null;');
+          eval(slide_state + "==" + num_states + "?" + current_id + '< PresentationModel.num_slides ? (' + current_id + '++, ' + slide_state + '=1) : null : ' + slide_state + '++;');
         }
         if (e.key === "ArrowLeft") {
-          eval(current_id + '> 1 ?' + current_id + '-- : null;');
+          eval(slide_state + "== 1 ?" + current_id + '> 1 ? (' + current_id + '--, ' + slide_state + '=' + num_states + ') : null : ' + slide_state + '--;');
         }
         if (iscontroller) {
           if (e.key === "m") {
