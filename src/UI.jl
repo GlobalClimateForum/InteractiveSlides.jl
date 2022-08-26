@@ -2,7 +2,7 @@ module UI
 using ..Stipple
 import ..eqtokw!, ..Reexport, ..ModelManager
 Reexport.@reexport using StippleUI
-export Slide, ui, ui_setting, slide, titleslide, iftitleslide, slide_id, navcontrols, menu_slides
+export Slide, ui, ui_setting, ui_landing, slide, titleslide, iftitleslide, slide_id, navcontrols, menu_slides
 export spacer, autocell, simplelist, simpleslide, @slide, @titleslide, @simpleslide #convenience functions
 
 struct Slide
@@ -101,10 +101,15 @@ end
 
 function ui_setting(pmodel::ReactiveModel)
     page(pmodel, [h2("Settings", style = "margin: 1rem"), row([
-        cell(p("Number of teams"); size = 3), 
-        cell(slider(1:1:4, :num_teams; draggable = true, snap = true, step = 1, marker__labels = true); size = 5)
-        ], class = "flex-center")
-    ])
+        cell("Number of teams"; size = 3), 
+        cell(slider(1:1:4, :num_teams; draggable = true, snap = true, step = 1, marker__labels = true, style = "padding:1rem"); size = 5)
+        ], class = "flex-center")], class = "settings-page")
+end
+
+function ui_landing(pmodel::ReactiveModel)
+    page(pmodel, [h2("Welcome", style = "margin: 1rem"), list(
+        append!([item(item_section("""<a href="$id">Team $id</a> <a href="$id?ctrl=1">Team $id controller</a>""")) for id in 1:pmodel.num_teams[]], [item(item_section(a("Settings", href = "settings")))])
+        )], class = "landing-page")
 end
 
 ####################### CONVENIENCE FUNCTIONS ####################

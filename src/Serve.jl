@@ -11,10 +11,6 @@ function build_presentation(PresModel::DataType, gen_content::Function, settings
 
     Genie.Assets.add_fileroute(StippleUI.assets_config, "hotkey.js"; basedir = @__DIR__)
     Stipple.DEPS[:hotkey] = () -> [Stipple.script(src = "/stippleui.jl/master/assets/js/hotkey.js")]
-
-    !get(settings, :use_Stipple_theme, false) && Genie.Router.delete!(Symbol("get_stipple.jl_master_assets_css_stipplecore.css")) 
-    folder = get(settings, :folder, "")
-    length(Stipple.Layout.THEMES) < 2 && push!(Stipple.Layout.THEMES, () -> [Stipple.link(href = "$folder/theme.css", rel = "stylesheet"), ""])
     
     println("Time to build UI:")
     @time UI.ui(pmodel, gen_content, settings, request_params) |> Stipple.html 
@@ -24,8 +20,12 @@ function serve_presentation(PresModel::DataType, gen_content::Function, settings
     pmodel = ModelInit.get_or_create_pmodel(PresModel)
     pmodel.num_teams[] = settings[:num_teams_default]
 
+    !get(settings, :use_Stipple_theme, false) && Genie.Router.delete!(Symbol("get_stipple.jl_master_assets_css_stipplecore.css")) 
+    push!(Stipple.Layout.THEMES, () -> [Stipple.link(href = "theme.css", rel = "stylesheet"), ""])
+
     Genie.route("/") do
-        build_presentation(PresModel, gen_content, settings, Genie.params())
+        pmodel = ModelInit.get_or_create_pmodel(PresModel)
+        UI.ui_landing(pmodel) |> Stipple.html
     end
 
     Genie.route("/:team_id::Int/") do
