@@ -47,28 +47,6 @@ function create_pmodel(PresentationModel)
         pmodel.reset_required[] = 1
     end
 
-    # for t_id = 1:4
-    #     state_field = getfield(pmodel, Symbol("slide_state$t_id"))
-    #     current_id_field = getfield(pmodel, Symbol("current_id$t_id"))
-    #     Stipple.on(state_field) do new_state
-    #         current_id = current_id_field[]
-    #         if new_state == 0 && current_id > 1
-    #             current_id_field[] = current_id - 1
-    #         end
-    #         if new_state == 0
-    #             state_field[] = 1
-    #         end
-    #         if new_state > pmodel.num_states[current_id] 
-    #             if current_id < pmodel.num_slides[]
-    #                 current_id_field[] = current_id + 1
-    #                 state_field[] = 1
-    #             else
-    #                 state_field[] = pmodel.num_states[current_id]
-    #             end
-    #         end
-    #     end
-    # end
-
     return pmodel
 end
 
