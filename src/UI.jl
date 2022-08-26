@@ -72,7 +72,6 @@ end
 function ui(pmodel::ReactiveModel, gen_content::Function, settings::Dict, request_params::Dict{Symbol, Any})
     params = merge(settings, request_params)
     params[:num_teams] = pmodel.num_teams[]
-    get!(params, :team_id, 1)
     params[:team_id] > params[:num_teams] && return "Only $(params[:num_teams]) teams can participate as per current settings."
     if get(params, :reset, "0") != "0" || get(params, :hardreset, "0") != "0" || pmodel.reset_required[]
         params[:init] = true
