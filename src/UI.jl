@@ -9,9 +9,10 @@ struct Slide
     title::String
     HTMLattr::Dict
     body::ParsedHTMLString
+    num_states::Int8
 end
 
-function slide(slides::Vector{Slide}, params::Dict, HTMLelem...; prepend_class = ""::String, title = ""::String, HTMLattr...)
+function slide(slides::Vector{Slide}, params::Dict, HTMLelem...; num_states = 1, prepend_class = ""::String, title = ""::String, HTMLattr...)
     HTMLattr = Dict(HTMLattr)
     if isempty(HTMLattr)
         HTMLattr = Dict{Symbol, Any}() 
@@ -27,7 +28,7 @@ function slide(slides::Vector{Slide}, params::Dict, HTMLelem...; prepend_class =
         end
     end
     body = quasar(:page, body, @iif("$slide_id == current_id$(params[:team_id]) + $(params[:shift])"); HTMLattr...)
-    push!(slides, Slide(title, HTMLattr, body))
+    push!(slides, Slide(title, HTMLattr, body, num_states))
     return slides
 end
 
@@ -86,7 +87,7 @@ function ui(pmodel::ReactiveModel, gen_content::Function, request_params::Dict{S
     empty!(pmodel.counters)
     slides, auxUI = gen_content(pmodel, params)
     pmodel.num_slides[] = length(slides)
-    pmodel.num_states[] = ones(Int, length(slides))
+    pmodel.num_states[] = getproperty.(slides, :num_states)
     page(pmodel,
     [
         StippleUI.Layouts.layout(view="hHh lpR lFf", [
