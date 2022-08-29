@@ -2,7 +2,7 @@ module UI
 using ..Stipple
 import ..eqtokw!, ..Reexport, ..ModelManager
 Reexport.@reexport using StippleUI
-export Slide, ui, ui_setting, ui_landing, slide, titleslide, iftitleslide, slide_id, navcontrols, menu_slides
+export Slide, ui, ui_setting, ui_landing, slide, titleslide, iftitleslide, slide_id, navcontrols, menu_slides, @v__bind, @appear_on
 export spacer, autocell, simplelist, simpleslide, @slide, @titleslide, @simpleslide #convenience functions
 
 struct Slide
@@ -110,6 +110,14 @@ function ui_landing(pmodel::ReactiveModel)
     page(pmodel, [h2("Welcome", style = "margin: 1rem"), list(
         append!(["""<a href="$id">Team $id</a> <a href="$id?ctrl=1">Controller $id</a><br>""" for id in 1:pmodel.num_teams[]], [item(item_section(a("Settings", href = "settings")))])
         )], class = "landing-page")
+end
+
+macro v__bind(expr, type)
+    :( "v-bind:$($(esc(type)))='$($(esc(expr)))'" )
+end
+
+macro appear_on(state_id::Int)
+    esc(:(@v__bind("[{ invisible: slide_state$team_id < $($(state_id)) }]", :class)))
 end
 
 ####################### CONVENIENCE FUNCTIONS ####################
