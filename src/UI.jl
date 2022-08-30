@@ -2,7 +2,7 @@ module UI
 using ..Stipple
 import ..eqtokw!, ..Reexport, ..ModelManager
 Reexport.@reexport using StippleUI
-export Slide, ui, ui_setting, ui_landing, slide, titleslide, iftitleslide, slide_id, navcontrols, menu_slides, @v__bind, @appear_on
+export Slide, ui, ui_setting, ui_landing, slide, titleslide, iftitleslide, slide_id, navcontrols, menu_slides, @v__bind, @appear_on, @hide_on
 export spacer, autocell, simplelist, simpleslide, @slide, @titleslide, @simpleslide #convenience functions
 
 struct Slide
@@ -16,18 +16,17 @@ function slide(slides::Vector{Slide}, params::Dict, HTMLelem...; num_states = 1,
     HTMLattr = Dict(HTMLattr)
     if isempty(HTMLattr)
         HTMLattr = Dict{Symbol, Any}() 
-    end #"text-center flex-center q-gutter-sm q-col-gutter-sm slide"
+    end
     HTMLattr[:class] = prepend_class * " " * get(HTMLattr, :class, "slide")
     slide_id = length(slides) + 1
-    body = [x for x in HTMLelem]
     if isempty(title) 
         try
-            title = strip(match(r"(?<=\<h[1-2]\>).+(?=<)", String(body[1])).match)
+            title = strip(match(r"(?<=\<h[1-2]\>).+(?=<)", String(HTMLelem[1])).match)
         catch
             title = "Untitled"; println("Warning: Untitled slide")
         end
     end
-    body = quasar(:page, body, @iif("$slide_id == current_id$(params[:team_id]) + $(params[:shift])"); HTMLattr...)
+    body = quasar(:page, [HTMLelem...], @iif("$slide_id == current_id$(params[:team_id]) + $(params[:shift])"); HTMLattr...)
     push!(slides, Slide(title, HTMLattr, body, num_states))
     return slides
 end
@@ -119,6 +118,10 @@ end
 
 macro appear_on(state_id::Int)
     esc(:(@v__bind("[{ invisible: slide_state$team_id < $($(state_id)) }]", :class)))
+end
+
+macro hide_on(state_id::Int)
+    esc(:(@v__bind("[{ invisible: slide_state$team_id >= $($(state_id)) }]", :class)))
 end
 
 ####################### CONVENIENCE FUNCTIONS ####################
