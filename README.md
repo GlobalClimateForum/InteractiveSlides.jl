@@ -13,8 +13,7 @@ For creating your own presentation, it is probably easiest to simply clone and e
 
 ## Screenshots:
 
-![Screenshot 1](https://i.ibb.co/rMZ9J9p/demo-decision-time.jpg)
-![Screenshot 2](https://i.ibb.co/hVCygrs/demo-results.jpg)
+![Screenshot 1](https://i.ibb.co/19QcnVx/demo-decision-time.jpg)
+![Screenshot 2](https://i.ibb.co/0BG19BX/demo-results.jpg)
 
 [![Build Status](https://github.com/GlobalClimateForum/InteractiveSlides.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/GlobalClimateForum/InteractiveSlides.jl/actions/workflows/CI.yml?query=branch%3Amain)
-
