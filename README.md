@@ -5,7 +5,7 @@ Swiftly create interactive presentations in Julia which run in the browser as si
 Other features include:
 - Hotkeys: While presenting, switch between slides with arrow keys, and open/close the sidebar with "m"
 - Slide states: Each slide can have multiple states, which can be used e.g. for initially hiding an element on a slide
-- The style of each presentation can easily be changed simply by editing a theme.css file
+- The style of each presentation can easily be changed simply by editing a CSS file
 
 You can find demos in the following repository: [InteractiveSlidesDemos](https://github.com/GlobalClimateForum/InteractiveSlidesDemos).
 
