@@ -31,26 +31,17 @@ function slide(slides::Vector{Slide}, params::Dict, HTMLelem...; num_states = 1,
     return slides
 end
 
-function titleslide(args...; prepend_class = "text-center flex-center"::String, title = ""::String, HTMLattr...)
-    HTMLattr = Dict(HTMLattr)
-    if isempty(HTMLattr)
-        HTMLattr = Dict{Symbol, Any}() 
-    end
-    HTMLattr[:class] = "titleslide"
-    if !isempty(prepend_class)
-        slide(args...; prepend_class, title, HTMLattr...)
-    else
-        slide(args...; title, HTMLattr...)
-    end
+macro v__bind(expr, type)
+    :( "v-bind:$($(esc(type)))='$($(esc(expr)))'" )
 end
 
-# see hotkeys.js for similar logic (if anyone has any idea for how to reduce that redundancy, go ahead!)
 function navcontrols(params::Dict)
     t_id = params[:team_id]
     drawerstr = params[:is_controller] ? "drawer_controller$t_id" : "drawer$t_id"
     [btn("",icon="menu", @click("$drawerstr = ! $drawerstr"))
     btn("",icon="chevron_left", @click("slide_state$t_id == 1 ? current_id$t_id > 1 ? (current_id$t_id--, slide_state$t_id = num_states[current_id$t_id-1]) : null : slide_state$t_id--"))
     btn("",icon="navigate_next", @click("slide_state$t_id == num_states[current_id$t_id-1] ? current_id$t_id < num_slides ? (current_id$t_id++, slide_state$t_id = 1) : null : slide_state$t_id++"))]
+    # see hotkeys.js for similar js logic (anyone has any idea for how to reduce that redundancy?)
 end
 
 function iftitleslide(slides::Vector{Slide}, params::Dict)
@@ -112,10 +103,6 @@ function ui_landing(pmodel::ReactiveModel)
         )], class = "landing-page")
 end
 
-macro v__bind(expr, type)
-    :( "v-bind:$($(esc(type)))='$($(esc(expr)))'" )
-end
-
 macro appear_on(state_id::Int)
     esc(:(@v__bind("[{ invisible: slide_state$team_id < $($(state_id)) }]", :class)))
 end
@@ -133,6 +120,19 @@ function simplelist(args...; ordered = false, cellfun = autocell, size = 0, kwar
     if ordered listfun = ol else listfun = ul end
     cellfun(listfun(
         [contains(x, "<") ? x : li(x) for x in args]; kwargs...); size)
+end
+
+function titleslide(args...; prepend_class = "text-center flex-center"::String, title = ""::String, HTMLattr...)
+    HTMLattr = Dict(HTMLattr)
+    if isempty(HTMLattr)
+        HTMLattr = Dict{Symbol, Any}() 
+    end
+    HTMLattr[:class] = "titleslide"
+    if !isempty(prepend_class)
+        slide(args...; prepend_class, title, HTMLattr...)
+    else
+        slide(args...; title, HTMLattr...)
+    end
 end
 
 function simpleslide(slides, params, heading, content, args...; row_class = "flex-center", kwargs...)
