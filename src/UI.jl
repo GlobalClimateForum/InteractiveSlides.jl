@@ -65,7 +65,7 @@ function menu_slides(slides::Vector{Slide}, params::Dict, item_fun; side = "left
     drawerstr = params[:is_controller] ? "drawer_controller$t_id" : "drawer$t_id"
     drawer_js = params[:persist_drawer] ? "" : "; $drawerstr = ! $drawerstr"
     listHTML = list([item(item_section(item_fun(id, title)), 
-        :clickable, @click("current_id$t_id = $(id)" * drawer_js)) 
+        :clickable, @click("slide_state$t_id = 1; current_id$t_id = $id" * drawer_js), @v__bind("[{ current: current_id$t_id == $id }]", :class)) 
         for (id, title) in enumerate(getproperty.(slides, :title))])
     drawer(v__model = drawerstr, listHTML; side)
 end
