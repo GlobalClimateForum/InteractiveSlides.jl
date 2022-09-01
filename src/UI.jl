@@ -135,8 +135,9 @@ function titleslide(args...; prepend_class = "text-center flex-center"::String, 
     end
 end
 
-function simpleslide(slides, params, heading, content, args...; row_class = "flex-center", kwargs...)
-    slide(slides, params, args..., heading, row(content, class = row_class); kwargs...)
+function simpleslide(slides, params, heading, content, args...; kwargs...)
+    style = "height:100%; flex:grow; display:flex; align-items: center; justify-content: center;"
+    slide(slides, params, args..., h1(heading), Html.div(content, style = style, class = "col"); prepend_class = "column", kwargs...)
 end
 
 macro slide(exprs...)
