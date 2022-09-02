@@ -12,12 +12,12 @@ struct Slide
     num_states::Int8
 end
 
-function slide(slides::Vector{Slide}, params::Dict, HTMLelem...; num_states = 1, prepend_class = ""::String, title = ""::String, HTMLattr...)
+function slide(slides::Vector{Slide}, params::Dict, HTMLelem...; num_states = 1, class = ""::String, title = ""::String, HTMLattr...)
     HTMLattr = Dict(HTMLattr)
     if isempty(HTMLattr)
         HTMLattr = Dict{Symbol, Any}() 
     end
-    HTMLattr[:class] = prepend_class * " " * get(HTMLattr, :class, "slide")
+    HTMLattr[:class] = "slide " * class
     slide_id = length(slides) + 1
     if isempty(title) 
         try
@@ -82,12 +82,14 @@ function ui(pmodel::ReactiveModel, gen_content::Function, request_params::Dict{S
     [
         StippleUI.Layouts.layout(view="hHh lpR lFf", [
             auxUI,
-            Html.div(v__hotkey = "$(params[:team_id])"),
+            Html.div(v__hotkeys = "$(params[:team_id])"),
             quasar(:page__container, 
                 getproperty.(slides, :body)
             )
-        ], v__cloak = true) #https://v2.vuejs.org/v2/api/#v-cloak
-    ])
+        ], 
+        v__cloak = true), #https://v2.vuejs.org/v2/api/#v-cloak
+    ], append = style(".slide {height: 1px;}") #https://stackoverflow.com/questions/8468066/child-inside-parent-with-min-height-100-not-inheriting-height
+    )
 end
 
 function ui_setting(pmodel::ReactiveModel)
@@ -122,22 +124,13 @@ function simplelist(args...; ordered = false, cellfun = autocell, size = 0, kwar
         [contains(x, "<") ? x : li(x) for x in args]; kwargs...); size)
 end
 
-function titleslide(args...; prepend_class = "text-center flex-center"::String, title = ""::String, HTMLattr...)
-    HTMLattr = Dict(HTMLattr)
-    if isempty(HTMLattr)
-        HTMLattr = Dict{Symbol, Any}() 
-    end
-    HTMLattr[:class] = "titleslide"
-    if !isempty(prepend_class)
-        slide(args...; prepend_class, title, HTMLattr...)
-    else
-        slide(args...; title, HTMLattr...)
-    end
+function titleslide(args...; class = "text-center flex-center"::String, title = ""::String, HTMLattr...)
+    slide(args...; class = "titleslide " * class, title, HTMLattr...)
 end
 
-function simpleslide(slides, params, heading, content, args...; kwargs...)
-    style = "height:100%; flex:grow; display:flex; align-items: center; justify-content: center;"
-    slide(slides, params, args..., h1(heading), Html.div(content, style = style, class = "col"); prepend_class = "column", kwargs...)
+function simpleslide(slides, params, heading, content...; style = "", kwargs...)
+    style = "height:100%; display:flex;" * style
+    slide(slides, params, heading, Html.div([content...], style = style, class = "col flex-center"); class = "column", kwargs...)
 end
 
 macro slide(exprs...)

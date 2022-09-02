@@ -20,8 +20,8 @@ function serve_presentation(PresModel::DataType, gen_content::Function; num_team
     !use_Stipple_theme && Genie.Router.delete!(Symbol("get_stipple.jl_master_assets_css_stipplecore.css")) 
     push!(Stipple.Layout.THEMES, () -> [Stipple.link(href = "theme.css", rel = "stylesheet"), ""])
 
-    Genie.Assets.add_fileroute(StippleUI.assets_config, "hotkey.js"; basedir = @__DIR__)
-    Stipple.DEPS[:hotkey] = () -> [Stipple.script(src = "/stippleui.jl/master/assets/js/hotkey.js")]
+    Genie.Assets.add_fileroute(StippleUI.assets_config, "hotkeys.js"; basedir = @__DIR__)
+    Stipple.DEPS[:hotkeys] = () -> [Stipple.script(src = "/stippleui.jl/master/assets/js/hotkeys.js")]
 
     Genie.route("/") do
         pmodel = ModelInit.get_or_create_pmodel(PresModel)

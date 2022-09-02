@@ -1,4 +1,4 @@
-Vue.directive('hotkey', {
+Vue.directive('hotkeys', {
     inserted: function (el, binding) {
       const params = new Proxy(new URLSearchParams(window.location.search), {
         get: (searchParams, prop) => searchParams.get(prop),
