@@ -17,7 +17,8 @@ function slide(slides::Vector{Slide}, params::Dict, HTMLelem...; num_states = 1,
     if isempty(HTMLattr)
         HTMLattr = Dict{Symbol, Any}() 
     end
-    HTMLattr[:class] = "slide " * class
+    println(params[:is_controller])
+    HTMLattr[:class] = "slide " * class * ifelse(params[:is_controller], " scroll-always", "")
     slide_id = length(slides) + 1
     if isempty(title) 
         try
@@ -88,7 +89,7 @@ function ui(pmodel::ReactiveModel, gen_content::Function, request_params::Dict{S
             )
         ], 
         v__cloak = true), #https://v2.vuejs.org/v2/api/#v-cloak
-    ], append = style(".slide {height: 1px;}") #https://stackoverflow.com/questions/8468066/child-inside-parent-with-min-height-100-not-inheriting-height
+    ],
     )
 end
 
