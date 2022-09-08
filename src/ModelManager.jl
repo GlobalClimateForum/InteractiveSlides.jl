@@ -24,10 +24,6 @@ function use_fields!(pmodel::ReactiveModel, params::Dict, type::String; init_val
     [use_field!(pmodel, params, type; init_val) for _ in 1:pmodel.num_teams[]]
 end
 
-function Base.getindex(field::Vector{ManagedField}, sym::Symbol)
-    return Symbol(field[1].sym, "<f_id")
-end
-
 let handlers = Observables.ObserverFunction[] #https://stackoverflow.com/questions/24541723/does-julia-support-static-variables-with-function-scope
     global new_handler
     global reset_handlers

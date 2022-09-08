@@ -17,7 +17,6 @@ function slide(slides::Vector{Slide}, params::Dict, HTMLelem...; num_states = 1,
     if isempty(HTMLattr)
         HTMLattr = Dict{Symbol, Any}() 
     end
-    println(params[:is_controller])
     HTMLattr[:class] = "slide " * class * ifelse(params[:is_controller], " scroll-always", "")
     slide_id = length(slides) + 1
     if isempty(title) 
