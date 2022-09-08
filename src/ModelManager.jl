@@ -2,7 +2,7 @@ module ModelManager
 using ..Stipple
 import ..to_fieldname, ..eqtokw!
 export use_field!, use_fields!, new_handler
-export @use_field!, @use_fields! #convenience functionss
+export @use_field!, @use_fields!, getslidefield, @getslidefield, getstatefield, @getstatefield #convenience functionss
 
 mutable struct ManagedField
     str::String
@@ -54,6 +54,22 @@ end
 
 macro use_fields!(exprs...)
     esc(:(use_fields!(pmodel, params, $(eqtokw!(exprs)...))))
+end
+
+function getslidefield(pmodel::ReactiveModel, team_id::Int)
+    getfield(pmodel, Symbol("current_id", team_id))
+end
+
+function getstatefield(pmodel::ReactiveModel, team_id::Int)
+    getfield(pmodel, Symbol("slide_state", team_id))
+end
+
+macro getslidefield(team_id)
+    esc(:(getslidefield(pmodel, $team_id)))
+end
+
+macro getstatefield(team_id)
+    esc(:(getstatefield(pmodel, $team_id)))
 end
 
 end
