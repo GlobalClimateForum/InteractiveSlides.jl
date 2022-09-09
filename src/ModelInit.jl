@@ -1,38 +1,34 @@
 module ModelInit
-import Mixers, ..Stipple, ..to_fieldname
+import Mixers, ..Stipple, ..to_fieldname, ..MAX_NUM_TEAMS
 export @presentation!, @addfields, get_or_create_pmodel, PresentationModel, reset_counters
+
+function addfields(name::String, num::Int, type, init)
+    [esc(Expr(:(=), 
+         Expr(:(::), Symbol(name, i), Meta.parse("R{$(type.args[1])}")),
+         init)) for i = 1:num]
+end
+
+macro addfields(name::String, type, init)
+    exprs = addfields(name, MAX_NUM_TEAMS, type, init)
+    return Expr(:block, exprs...)
+end
+
+macro addfields(num::Int, type, init)
+    exprs = addfields(to_fieldname(type.args[1]), num, type, init)
+    return Expr(:block, exprs...)
+end
 
 Mixers.@mix Stipple.@with_kw struct presentation!
     Stipple.@reactors #This line is from the definition of reactive! (Stipple.jl)
-    counters::Dict{String, Int8} = Dict()
+    counters::Dict{String, Int} = Dict()
     reset_required::R{Bool} = false
-    num_teams::R{Int8} = 1
-    num_slides::R{Int8} = 0
-    current_id1::R{Int8} = 1
-    current_id2::R{Int8} = 1
-    current_id3::R{Int8} = 1
-    current_id4::R{Int8} = 1
-    num_states::R{Vector{Int8}} = []
-    slide_state1::R{Int8} = 1
-    slide_state2::R{Int8} = 1
-    slide_state3::R{Int8} = 1
-    slide_state4::R{Int8} = 1
-    drawer1::R{Bool} = false
-    drawer2::R{Bool} = false
-    drawer3::R{Bool} = false
-    drawer4::R{Bool} = false
-    drawer_controller1::R{Bool} = false
-    drawer_controller2::R{Bool} = false
-    drawer_controller3::R{Bool} = false
-    drawer_controller4::R{Bool} = false
-end
-
-
-macro addfields(num, type, init)
-    exprs = [esc(Expr(:(=), 
-                            Expr(:(::), Symbol(to_fieldname(type.args[1], i)), Meta.parse("R{$(type.args[1])}")),
-                 init)) for i = 1:num]
-    return Expr(:block, exprs...)
+    num_teams::R{Int} = 1
+    num_slides::R{Int} = 0
+    num_states::R{Vector{Int}} = []
+    @addfields("slide_id", ::Int, 1)
+    @addfields("slide_state", ::Int, 1)
+    @addfields("drawer", ::Bool, false)
+    @addfields("drawer_controller", ::Bool, false)
 end
 
 function create_pmodel(PresentationModel)

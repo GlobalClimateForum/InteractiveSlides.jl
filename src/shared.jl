@@ -1,4 +1,6 @@
-function to_fieldname(typename, id)
+const MAX_NUM_TEAMS = 6::Int64
+
+function to_fieldname(typename; id::Union{Int, String} = "")
     replace(lowercase(string(typename, id)), "{" => "", "}" => "")
 end
 

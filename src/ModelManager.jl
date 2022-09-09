@@ -11,7 +11,7 @@ mutable struct ManagedField
 end
 
 function use_field!(pmodel::ReactiveModel, params::Dict, type::String; init_val = Nothing)
-    name = to_fieldname(type, get!(pmodel.counters, type, 1))
+    name = to_fieldname(type; id = get!(pmodel.counters, type, 1))
     name_sym = Symbol(name)
     if init_val != Nothing && params[:init]
         getfield(pmodel, name_sym).o.val = init_val
@@ -57,7 +57,7 @@ macro use_fields!(exprs...)
 end
 
 function getslidefield(pmodel::ReactiveModel, team_id::Int)
-    getfield(pmodel, Symbol("current_id", team_id))
+    getfield(pmodel, Symbol("slide_id", team_id))
 end
 
 function getstatefield(pmodel::ReactiveModel, team_id::Int)

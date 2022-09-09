@@ -1,6 +1,6 @@
 module UI
 using ..Stipple
-import ..eqtokw!, ..Reexport, ..ModelManager
+import ..eqtokw!, ..Reexport, ..ModelManager, ..MAX_NUM_TEAMS
 Reexport.@reexport using StippleUI
 export Slide, ui, ui_setting, ui_landing, slide, titleslide, iftitleslide, slide_id, navcontrols, menu_slides, @v__bind, @appear_on, @hide_on
 export spacer, autocell, simplelist, simpleslide, @slide, @titleslide, @simpleslide #convenience functions
@@ -9,7 +9,7 @@ struct Slide
     title::String
     HTMLattr::Dict
     body::ParsedHTMLString
-    num_states::Int8
+    num_states::Int
 end
 
 function slide(slides::Vector{Slide}, params::Dict, HTMLelem...; num_states = 1, class = ""::String, title = ""::String, HTMLattr...)
@@ -26,7 +26,7 @@ function slide(slides::Vector{Slide}, params::Dict, HTMLelem...; num_states = 1,
             title = "Untitled"; println("Warning: Untitled slide")
         end
     end
-    body = quasar(:page, [HTMLelem...], @iif("$slide_id == current_id$(params[:team_id]) + $(params[:shift])"); HTMLattr...)
+    body = quasar(:page, [HTMLelem...], @iif("$slide_id == slide_id$(params[:team_id]) + $(params[:shift])"); HTMLattr...)
     push!(slides, Slide(title, HTMLattr, body, num_states))
     return slides
 end
@@ -39,24 +39,24 @@ function navcontrols(params::Dict)
     t_id = params[:team_id]
     drawerstr = params[:is_controller] ? "drawer_controller$t_id" : "drawer$t_id"
     [btn("",icon="menu", @click("$drawerstr = ! $drawerstr"))
-    btn("",icon="chevron_left", @click("slide_state$t_id == 1 ? current_id$t_id > 1 ? (current_id$t_id--, slide_state$t_id = num_states[current_id$t_id-1]) : null : slide_state$t_id--"))
-    btn("",icon="navigate_next", @click("slide_state$t_id == num_states[current_id$t_id-1] ? current_id$t_id < num_slides ? (current_id$t_id++, slide_state$t_id = 1) : null : slide_state$t_id++"))]
+    btn("",icon="chevron_left", @click("slide_state$t_id == 1 ? slide_id$t_id > 1 ? (slide_id$t_id--, slide_state$t_id = num_states[slide_id$t_id-1]) : null : slide_state$t_id--"))
+    btn("",icon="navigate_next", @click("slide_state$t_id == num_states[slide_id$t_id-1] ? slide_id$t_id < num_slides ? (slide_id$t_id++, slide_state$t_id = 1) : null : slide_state$t_id++"))]
     # see hotkeys.js for similar js logic (anyone has any idea for how to reduce that redundancy?)
 end
 
 function iftitleslide(slides::Vector{Slide}, params::Dict)
     titleslide_ids = findall(contains.([slide.HTMLattr[:class] for slide in slides], "titleslide"))
-    isempty(titleslide_ids) ? "" : @iif("!$titleslide_ids.includes(current_id$(params[:team_id]))")
+    isempty(titleslide_ids) ? "" : @iif("!$titleslide_ids.includes(slide_id$(params[:team_id]))")
 end
 
-function slide_id(params::Dict) span("", @text(Symbol("current_id$(params[:team_id])")), class = "slide_id") end
+function slide_id(params::Dict) span("", @text(Symbol("slide_id$(params[:team_id])")), class = "slide_id") end
 
 function menu_slides(slides::Vector{Slide}, params::Dict, item_fun; side = "left")
     t_id = params[:team_id]
     drawerstr = params[:is_controller] ? "drawer_controller$t_id" : "drawer$t_id"
     drawer_js = params[:persist_drawer] ? "" : "; $drawerstr = ! $drawerstr"
     listHTML = list([item(item_section(item_fun(id, title)), 
-        :clickable, @click("slide_state$t_id = 1; current_id$t_id = $id" * drawer_js), @v__bind("[{ current: current_id$t_id == $id }]", :class)) 
+        :clickable, @click("slide_state$t_id = 1; slide_id$t_id = $id" * drawer_js), @v__bind("[{ current: slide_id$t_id == $id }]", :class)) 
         for (id, title) in enumerate(getproperty.(slides, :title))])
     drawer(v__model = drawerstr, listHTML; side)
 end
@@ -95,7 +95,7 @@ end
 function ui_setting(pmodel::ReactiveModel)
     page(pmodel, [h2("Settings", style = "margin: 1rem"), row([
         cell("Number of teams"; size = 3), 
-        cell(slider(1:1:4, :num_teams; draggable = true, snap = true, step = 1, marker__labels = true, style = "padding:1rem"); size = 5)
+        cell(slider(1:1:MAX_NUM_TEAMS, :num_teams; draggable = true, snap = true, step = 1, marker__labels = true, style = "padding:1rem"); size = 5)
         ], class = "flex-center")], class = "settings-page")
 end
 
