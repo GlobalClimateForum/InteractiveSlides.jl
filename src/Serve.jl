@@ -1,6 +1,16 @@
 module Serve
-import ..Stipple, ..Genie, ..StippleUI, ..ModelInit, ..UI
-export serve_presentation
+import ..Stipple, ..Genie, ..ModelInit, ..UI
+export serve_presentation, add_js
+
+function add_js(file::AbstractString; basedir = @__DIR__, subfolder = "", prefix = "", kwargs...)
+    Genie.Router.route(Genie.Assets.asset_path(file; ext = ".js", package = "InteractiveSlides.jl", type = "", prefix, kwargs...)) do
+    Genie.Renderer.WebRenderable(
+        Genie.Assets.embedded(Genie.Assets.asset_file(cwd=basedir; prefix, type = subfolder, ext = ".js", file)),
+    :javascript) |> Genie.Renderer.respond
+    end
+    filename = splitpath(file)[end]
+    Stipple.DEPS[Symbol(filename)] = () -> [Stipple.script(src = "/interactiveslides.jl/$filename.js")]
+end
 
 function build_presentation(PresModel::DataType, gen_content::Function, request_params::Dict{Symbol, Any}; kwargs...)
     if get(request_params, :modelreset, "0") != "0"
@@ -8,7 +18,6 @@ function build_presentation(PresModel::DataType, gen_content::Function, request_
     else
         pmodel = ModelInit.get_or_create_pmodel(PresModel)
     end
-    
     println("Time to build UI:")
     @time UI.ui(pmodel, gen_content, request_params; kwargs...) |> Stipple.html 
 end
@@ -20,8 +29,8 @@ function serve_presentation(PresModel::DataType, gen_content::Function; num_team
     !use_Stipple_theme && Genie.Router.delete!(Symbol("get_stipple.jl_master_assets_css_stipplecore.css")) 
     push!(Stipple.Layout.THEMES, () -> [Stipple.link(href = "theme.css", rel = "stylesheet"), ""])
 
-    Genie.Assets.add_fileroute(StippleUI.assets_config, "hotkeys.js"; basedir = @__DIR__)
-    Stipple.DEPS[:hotkeys] = () -> [Stipple.script(src = "/stippleui.jl/master/assets/js/hotkeys.js")]
+    add_js("timer", subfolder = "js")
+    add_js("hotkeys", subfolder = "js")
 
     Genie.route("/") do
         pmodel = ModelInit.get_or_create_pmodel(PresModel)
