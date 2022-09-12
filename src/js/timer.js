@@ -1,25 +1,35 @@
-function CountDown() {
-    function Decrement(previous) {
-        if (isNaN(previous) || PresentationModel.timer == previous) {
-            PresentationModel.timer--;
-            previous = PresentationModel.timer
-            setTimeout(Decrement.bind(this, previous), 1000);
-        }
+function checkIfChanged() { 
+  //this is to avoid multiple timers at the same time. Checking timer_isactive fails upon page reload (won't be set to false even though it should be)
+  return new Promise((resolve, reject) => {
+    previous = PresentationModel.timer;
+    setTimeout(() => {
+      resolve(PresentationModel.timer != previous);
+    }, 1300);
+  });
+}
+
+async function count(step) {
+  hasChanged = await checkIfChanged();
+  if (!hasChanged) {
+    PresentationModel.timer_isactive = true
+    function Increment() {
+      if (PresentationModel.timer_isactive) {
+        PresentationModel.timer += step;
+        setTimeout(Increment.bind(this), 1000);
+      }
     }
-    setTimeout(Decrement(NaN), 50);
+    setTimeout(Increment(), 0);
   }
+}
+
+function countDown() {
+  count(-1);
+}
+
+function countUp() {
+  count(1);
+}
   
-  function CountUp() {
-    function Increment(previous) {
-        if (isNaN(previous) || PresentationModel.timer == previous) {
-            PresentationModel.timer++;
-            previous = PresentationModel.timer
-            setTimeout(Increment.bind(this, previous), 1000);
-        }
-    }
-    setTimeout(Increment(NaN), 50);
-  }
-  
-  function PauseTimer() {
-    setTimeout(PresentationModel.timer++, 1000);
-  }
+function pauseTimer() {
+  PresentationModel.timer_isactive = false
+}

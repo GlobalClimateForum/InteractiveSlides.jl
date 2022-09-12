@@ -68,6 +68,7 @@ function ui(pmodel::ReactiveModel, gen_content::Function, request_params::Dict{S
         params[:init] = true
         ModelManager.reset_handlers()
         pmodel.reset_required[] = false
+        pmodel.timer_isactive[] = false
     else
         params[:init] = isempty(pmodel.counters) ? true : false #only initialize fields/handlers if they have not already been initialized
     end

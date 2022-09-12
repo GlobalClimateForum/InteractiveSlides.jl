@@ -30,13 +30,13 @@ Vue.directive('hotkeys', {
         }
         break;
       case "u":
-        setTimeout(CountUp(), 50);
+        setTimeout(countUp(), 50);
         break;
       case "d":
-        setTimeout(CountDown(), 50);
+        setTimeout(countDown(), 50);
         break;
       case "p":
-        setTimeout(PauseTimer(), 50);
+        setTimeout(pauseTimer(), 50);
         break;
       };
     }

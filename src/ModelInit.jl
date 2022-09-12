@@ -23,6 +23,7 @@ Mixers.@mix Stipple.@with_kw struct presentation!
     counters::Dict{String, Int} = Dict()
     reset_required::R{Bool} = false
     timer::R{Int} = 0
+    timer_isactive::R{Bool} = false
     num_teams::R{Int} = 1
     num_slides::R{Int} = 0
     num_states::R{Vector{Int}} = []
