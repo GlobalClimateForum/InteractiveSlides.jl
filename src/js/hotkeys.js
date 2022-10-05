@@ -13,6 +13,7 @@ Vue.directive('hotkeys', {
       num_states = 'PresentationModel.num_states[' + slide_id + '-1]'
       drawer = 'PresentationModel.drawer' + team_id
       drawer_controller = 'PresentationModel.drawer_controller' + team_id
+      setTimeout("hljs.highlightAll()", 100); //in case highlight.js is being used. Using github.com/highlightjs/vue-plugin/blob/1-stable/src/vue.js presumably would be less dirty
       // the logic below could also be implemented in the form of listeners on slide_state instead (see commit for version 0.18.2), however, the below solution is more performant (immediate switch between slides)
       switch (e.key) {
       case "ArrowRight":
