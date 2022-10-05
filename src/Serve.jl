@@ -27,7 +27,7 @@ function serve_presentation(PresModel::DataType, gen_content::Function; num_team
     pmodel.num_teams[] = num_teams_default
 
     !use_Stipple_theme && Genie.Router.delete!(Symbol("get_stipple.jl_master_assets_css_stipplecore.css")) 
-    push!(Stipple.Layout.THEMES, () -> [Stipple.link(href = "theme.css", rel = "stylesheet"), ""])
+    push!(Stipple.Layout.THEMES, () -> [Stipple.stylesheet("css/theme.css"), ""])
 
     add_js("timer", subfolder = "js")
     add_js("hotkeys", subfolder = "js")
