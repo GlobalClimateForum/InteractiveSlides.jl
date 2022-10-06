@@ -61,23 +61,7 @@ function menu_slides(slides::Vector{Slide}, params::Dict, item_fun; side = "left
     drawer(v__model = drawerstr, listHTML; side)
 end
 
-function getAssets()
-    out = []
-    for (root, dirs, files) in walkdir("public")
-        for file in files
-            fileandfolder = joinpath(push!(splitpath(root)[2:end], file))
-            if endswith(fileandfolder, ".css") && !endswith(fileandfolder, "theme.css") 
-                #theme.css is loaded differently, in serve(), as otherwise theme.css would be loaded before inline styles
-                push!(out, stylesheet(fileandfolder))
-            elseif endswith(fileandfolder, ".js")
-                push!(out, script(src = fileandfolder))
-            end
-        end
-    end
-    return out
-end
-
-function ui(pmodel::ReactiveModel, gen_content::Function, request_params::Dict{Symbol, Any}; kwargs...)
+function ui(pmodel::ReactiveModel, gen_content::Function, request_params::Dict{Symbol, Any}, assets; kwargs...)
     params = merge!(Dict{Symbol, Any}(kwargs), request_params)
     params[:team_id] > pmodel.num_teams[] && return "Only $(pmodel.num_teams[]) teams can participate as per current settings."
     if get(params, :reset, "0") != "0" || get(params, :modelreset, "0") != "0" || pmodel.reset_required[]
@@ -105,7 +89,7 @@ function ui(pmodel::ReactiveModel, gen_content::Function, request_params::Dict{S
             )
         ], 
         v__cloak = true), #https://v2.vuejs.org/v2/api/#v-cloak
-    ], append = getAssets(),
+    ], assets,
     )
 end
 
