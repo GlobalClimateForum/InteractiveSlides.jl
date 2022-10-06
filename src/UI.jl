@@ -2,7 +2,7 @@ module UI
 using ..Stipple
 import ..eqtokw!, ..Reexport, ..ModelManager, ..MAX_NUM_TEAMS
 Reexport.@reexport using StippleUI
-export Slide, ui, ui_setting, ui_landing, slide, titleslide, iftitleslide, slide_id, navcontrols, menu_slides, @v__bind, @appear_on, @hide_on
+export Slide, ui, ui_setting, ui_landing, slide, titleslide, iftitleslide, slide_id, navcontrols, menu_slides, @v__bind, @appear_on, @hide_on, @show_from_to
 export spacer, autocell, simplelist, simpleslide, @slide, @titleslide, @simpleslide #convenience functions
 
 struct Slide
@@ -128,6 +128,10 @@ end
 
 macro hide_on(state_id::Int)
     esc(:(@v__bind("[{ invisible: slide_state$team_id >= $($(state_id)) }]", :class)))
+end
+
+macro show_from_to(state_id_appear::Int, state_id_hide::Int)
+    esc(:(@v__bind("[{ invisible: slide_state$team_id < $($(state_id_appear)) || slide_state$team_id > $($(state_id_hide)) }]", :class)))
 end
 
 ####################### CONVENIENCE FUNCTIONS ####################
