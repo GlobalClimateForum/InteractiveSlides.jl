@@ -145,9 +145,9 @@ function titleslide(args...; class = "text-center flex-center"::String, title = 
     slide(args...; class = "titleslide " * class, title, HTMLattr...)
 end
 
-function simpleslide(slides, params, heading, content...; contentstyle = "", kwargs...)
+function simpleslide(slides, params, heading, content...; contentstyle = "", contentclass = "flex-center", kwargs...)
     style = "height:100%; display:flex;" * contentstyle
-    slide(slides, params, heading, Html.div([content...], style = style, class = "col flex-center"); class = "column", kwargs...)
+    slide(slides, params, heading, Html.div([content...], style = style, class = "col " * contentclass); class = "column", kwargs...)
 end
 
 macro slide(exprs...)
