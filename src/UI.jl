@@ -107,15 +107,15 @@ function ui_landing(pmodel::ReactiveModel)
 end
 
 macro appear_on(state_id::Int)
-    esc(:(@v__bind("[{ invisible: slide_state$team_id < $($(state_id)) }]", :class)))
+    esc(:(@v__bind("[{ invisible: slide_state$(params[:team_id]) < $($(state_id)) }]", :class)))
 end
 
 macro hide_on(state_id::Int)
-    esc(:(@v__bind("[{ invisible: slide_state$team_id >= $($(state_id)) }]", :class)))
+    esc(:(@v__bind("[{ invisible: slide_state$(params[:team_id]) >= $($(state_id)) }]", :class)))
 end
 
 macro show_from_to(state_id_appear::Int, state_id_hide::Int)
-    esc(:(@v__bind("[{ invisible: slide_state$team_id < $($(state_id_appear)) || slide_state$team_id > $($(state_id_hide)) }]", :class)))
+    esc(:(@v__bind("[{ invisible: slide_state$(params[:team_id]) < $($(state_id_appear)) || slide_state$(params[:team_id]) > $($(state_id_hide)) }]", :class)))
 end
 
 ####################### CONVENIENCE FUNCTIONS ####################
