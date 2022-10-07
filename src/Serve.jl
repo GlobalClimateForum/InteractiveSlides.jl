@@ -1,5 +1,5 @@
 module Serve
-import ..Stipple, ..Genie, ..ModelInit, ..UI
+import ..Stipple, ..Genie, ..ModelInit, ..UI, ..MAX_NUM_TEAMS
 export serve_presentation, add_js
 
 function add_js(file::AbstractString; basedir = @__DIR__, subfolder = "", prefix = "", kwargs...)
@@ -41,9 +41,16 @@ function build_presentation(PresModel::DataType, gen_content::Function, request_
     @time UI.ui(pmodel, gen_content, request_params, getAssets(); kwargs...) |> Stipple.html 
 end
 
-function serve_presentation(PresModel::DataType, gen_content::Function; num_teams_default::Int = 1, use_Stipple_theme::Bool = false, kwargs...)
+function serve_presentation(PresModel::DataType, gen_content::Function; 
+                            num_teams_default::Int = 1, max_num_teams = MAX_NUM_TEAMS::Int, use_Stipple_theme::Bool = false, kwargs...)
     pmodel = ModelInit.get_or_create_pmodel(PresModel)
     pmodel.num_teams[] = num_teams_default
+    if max_num_teams <= MAX_NUM_TEAMS; 
+        pmodel.max_num_teams[] = max_num_teams 
+    else
+        error("Currently no more than $MAX_NUM_TEAMS teams are supported by InteractiveSlides.jl. 
+               Please change keyword argument 'max_num_teams' accordingly.")
+    end
 
     !use_Stipple_theme && Genie.Router.delete!(Symbol("get_stipple.jl_master_assets_css_stipplecore.css")) 
     push!(Stipple.Layout.THEMES, () -> [Stipple.stylesheet("css/theme.css"), ""])

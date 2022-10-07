@@ -25,6 +25,7 @@ Mixers.@mix Stipple.@with_kw struct presentation!
     timer::R{Int} = 0
     timer_isactive::R{Bool} = false
     num_teams::R{Int} = 1
+    max_num_teams::R{Int} = 1
     num_slides::R{Int} = 0
     num_states::R{Vector{Int}} = []
     @addfields("slide_id", ::Int, 1)

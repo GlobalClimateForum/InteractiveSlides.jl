@@ -96,7 +96,7 @@ end
 function ui_setting(pmodel::ReactiveModel)
     page(pmodel, [h2("Settings", style = "margin: 1rem"), row([
         cell("Number of teams"; size = 3), 
-        cell(slider(1:1:MAX_NUM_TEAMS, :num_teams; draggable = true, snap = true, step = 1, marker__labels = true, style = "padding:1rem"); size = 5)
+        cell(slider(1:1:pmodel.max_num_teams[], :num_teams; draggable = true, snap = true, step = 1, marker__labels = true, style = "padding:1rem"); size = 5)
         ], class = "flex-center")], class = "settings-page")
 end
 
