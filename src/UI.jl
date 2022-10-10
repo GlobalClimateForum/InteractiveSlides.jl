@@ -2,7 +2,8 @@ module UI
 using ..Stipple
 import ..eqtokw!, ..Reexport, ..ModelManager, ..MAX_NUM_TEAMS
 Reexport.@reexport using StippleUI
-export Slide, ui, ui_setting, ui_landing, slide, titleslide, iftitleslide, slide_id, navcontrols, menu_slides, @v__bind, @appear_on, @hide_on, @show_from_to
+export Slide, ui, ui_setting, ui_landing, slide, titleslide, iftitleslide, slide_id, navcontrols, menu_slides
+export @v__bind, @state_controlled_class, @appear_on, @hide_on, @show_from_to
 export spacer, autocell, simplelist, simpleslide, @slide, @titleslide, @simpleslide #convenience functions
 
 struct Slide
@@ -26,7 +27,7 @@ function slide(slides::Vector{Slide}, params::Dict, HTMLelem...; num_states = 1,
             title = "Untitled"; println("Warning: Untitled slide")
         end
     end
-    body = quasar(:page, [HTMLelem...], @iif("$slide_id == slide_id$(params[:team_id]) + $(params[:shift])"); HTMLattr...)
+    body = quasar(:page, [HTMLelem...], @showif("$slide_id == slide_id$(params[:team_id]) + $(params[:shift])"); HTMLattr...)
     push!(slides, Slide(title, HTMLattr, body, num_states))
     return slides
 end
@@ -89,7 +90,7 @@ function ui(pmodel::ReactiveModel, gen_content::Function, request_params::Dict{S
             )
         ], 
         v__cloak = true), #https://v2.vuejs.org/v2/api/#v-cloak
-    ], assets,
+    ], push!(assets, script("setTimeout('hljs.highlightAll()', 100);")),
     )
 end
 
@@ -106,16 +107,38 @@ function ui_landing(pmodel::ReactiveModel)
         )], class = "landing-page")
 end
 
-macro appear_on(state_id::Int)
-    esc(:(@v__bind("[{ invisible: slide_state$(params[:team_id]) < $($(state_id)) }]", :class)))
+macro state_controlled_class(class1, class2, class3, state1, state2)
+    esc(:(@v__bind("[{  $($class1): slide_state$(params[:team_id]) < $($state1),
+                        $($class2): slide_state$(params[:team_id]) >= $($state1) && slide_state$(params[:team_id]) <= $($state2),
+                        $($class3): slide_state$(params[:team_id]) > $($state2) }]", :class)))
 end
 
-macro hide_on(state_id::Int)
-    esc(:(@v__bind("[{ invisible: slide_state$(params[:team_id]) >= $($(state_id)) }]", :class)))
+macro state_controlled_class(class, state1, state2)
+    esc(:(@v__bind("[{ $($class): slide_state$(params[:team_id]) >= $($state1) && slide_state$(params[:team_id]) <= $($state2) }]", :class)))
 end
 
-macro show_from_to(state_id_appear::Int, state_id_hide::Int)
-    esc(:(@v__bind("[{ invisible: slide_state$(params[:team_id]) < $($(state_id_appear)) || slide_state$(params[:team_id]) > $($(state_id_hide)) }]", :class)))
+macro appear_on(state, take_space_before)
+    esc(:(@state_controlled_class($take_space_before ? "invisible" : "hidden", "abcde", "abcde", $state, 99)))
+end
+
+macro hide_on(state, take_space_after)
+    esc(:(@state_controlled_class($take_space_after ? "invisible" : "hidden", "abcde", "abcde", 1, $state)))
+end
+
+macro show_from_to(state_from, state_to, take_space_before, take_space_after)
+    esc(:(@state_controlled_class($take_space_before ? "invisible" : "hidden", "abcde", $take_space_after ? "invisible" : "hidden", $state_from, $state_to)))
+end
+
+macro appear_on(state)
+    esc(:(@appear_on($state, false)))
+end
+
+macro hide_on(state)
+    esc(:(@hide_on($state, false)))
+end
+
+macro show_from_to(state_from, state_to)
+    esc(:(@show_from_to($state_from, $state_to, false, false)))
 end
 
 ####################### CONVENIENCE FUNCTIONS ####################

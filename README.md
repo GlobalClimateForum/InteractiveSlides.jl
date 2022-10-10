@@ -17,3 +17,5 @@ For creating your own presentation, it is probably easiest to simply clone and e
 ![Screenshot 2](https://i.ibb.co/0BG19BX/demo-results.jpg)
 
 [![Build Status](https://github.com/GlobalClimateForum/InteractiveSlides.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/GlobalClimateForum/InteractiveSlides.jl/actions/workflows/CI.yml?query=branch%3Amain)
+
+TODO: Make appear_on, hide_on, from_to also available in forms where the content disappears completely (like @iff or @show_if)
