@@ -1,6 +1,6 @@
 module Serve
 import ..Stipple, ..Genie, ..ModelInit, ..UI, ..MAX_NUM_TEAMS
-export serve_presentation, add_js
+export serve_presentation
 
 function add_js(file::AbstractString; basedir = @__DIR__, subfolder = "", prefix = "", kwargs...)
     file = replace(file, ".js" => "")
@@ -41,6 +41,28 @@ function build_presentation(PresModel::DataType, gen_content::Function, request_
     @time UI.ui(pmodel, gen_content, request_params, getAssets(); kwargs...) |> Stipple.html 
 end
 
+"""
+    serve_presentation(PresModel::DataType, gen_content::Function; 
+    num_teams_default::Int = 1, max_num_teams = MAX_NUM_TEAMS::Int, use_Stipple_theme::Bool = false, kwargs...)
+
+
+High-level function which takes a reactive model definition and a function which generates content (both defined by the presentation creator) 
+and uses them to generate the presentation (and set up a route to it).
+It also sets up routes for the landing page, the settings page, as well as css files and vue.js files in the /public folder.
+The content-generating function needs to take two arguments, "pmodel" and "params" (which should be named as such for macros such as @slide to work),
+and should return a list of slides as well as an HTML element defining "auxilliary" UI elements such as header, footer, and drawer.
+### Example
+```julia
+julia> @presentation! struct PresentationModel <: ReactiveModel
+       end
+julia> function gen_content(pmodel::PresentationModel, params::Dict)
+            slides = [Slide("",Dict(:class => "slide"), p("content"), 1)]
+            auxUI = ""
+            return slides, auxUI
+       end
+julia> serve_presentation(PresentationModel, gen_content; num_teams_default = 2, max_num_teams = 4)
+```
+"""
 function serve_presentation(PresModel::DataType, gen_content::Function; 
                             num_teams_default::Int = 1, max_num_teams = MAX_NUM_TEAMS::Int, use_Stipple_theme::Bool = false, kwargs...)
     pmodel = ModelInit.get_or_create_pmodel(PresModel)

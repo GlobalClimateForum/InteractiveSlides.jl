@@ -1,7 +1,7 @@
 module ModelManager
 using ..Stipple
 import ..to_fieldname, ..eqtokw!
-export use_field!, use_fields!, new_handler
+export use_field!, use_fields!, new_listener
 export @use_field!, @use_fields!, getslidefield, @getslidefield, getstatefield, @getstatefield #convenience functionss
 
 mutable struct ManagedField
@@ -10,6 +10,15 @@ mutable struct ManagedField
     ref::Reactive
 end
 
+"""
+    use_field!(pmodel::ReactiveModel, params::Dict, type::String; init_val = Nothing)
+
+If params[:init], this function populates a field of pmodel with init_val, and increases a counter such that on the next call it uses a different field.
+Then, it returns a reference to that field as well as the corresponding symbol in the shape of a ManagedField.
+
+If not params[:init] (i.e., if the presentation has already been initialized), 
+the function simply looks up the counter, returns the corresponding ManagedField (without modyfing anything), and increases the counter.
+"""
 function use_field!(pmodel::ReactiveModel, params::Dict, type::String; init_val = Nothing)
     name = to_fieldname(type; id = get!(pmodel.counters, type, 1))
     name_sym = Symbol(name)
@@ -20,34 +29,53 @@ function use_field!(pmodel::ReactiveModel, params::Dict, type::String; init_val 
     return ManagedField(name, name_sym, getfield(pmodel, name_sym))::ManagedField
 end
 
+"""
+    use_fields!(pmodel::ReactiveModel, params::Dict, type::String; init_val = Nothing)
+
+ONLY USEFUL IF YOU ARE PRESENTING TO MORE THAN ONE TEAM (otherwise you can safely ignore this functionality).
+"Manages" multiple ManagedField (returns a list of ManagedField, one ManageField per team)
+"""
 function use_fields!(pmodel::ReactiveModel, params::Dict, type::String; init_val = Nothing)
     [use_field!(pmodel, params, type; init_val) for _ in 1:pmodel.num_teams[]]
 end
 
-let handlers = Observables.ObserverFunction[] #https://stackoverflow.com/questions/24541723/does-julia-support-static-variables-with-function-scope
-    global new_handler
-    global reset_handlers
+let listeners = Observables.ObserverFunction[] #https://stackoverflow.com/questions/24541723/does-julia-support-static-variables-with-function-scope
+    global new_listener
+    global delete_listeners
 
-    function new_handler(fun::Function, field::Reactive)
-        handler = on(field, weak = true) do val
+    function new_listener(fun::Function, field::Reactive)
+        listener = on(field, weak = true) do val
             fun(val)
         end
-        notify(field)
-        push!(handlers, handler)
+        notify(field) #to immediately initialize the value
+        push!(listeners, listener)
     end
 
-    function reset_handlers()
-        off.(handlers)
-        empty!(handlers)
+    function delete_listeners()
+        off.(listeners)
+        empty!(listeners)
     end
 end
 
-function new_handler(fun::Function, field::ManagedField)
-    new_handler(fun, field.ref)
+"""
+    new_listener
+
+Takes a function and a field (either a ManagedField or a direct reference to a field). 
+Sets up a listener accordingly (see https://genieframework.com/docs/stipple/v0.25/API/stipple.html#Observables.on).
+In order to be able to delete that listener in case when resetting the presentation (via delete_listeners), 
+`new_listener` also stores a reference to the listener in a list.
+"""
+function new_listener(fun::Function, field::ManagedField)
+    new_listener(fun, field.ref)
 end
 
 ####################### CONVENIENCE FUNCTIONS ####################
 
+"""
+    @use_field!(exprs...)
+
+Convenience macro which calls `use_field!` (see `?use_field!`). See ?@slide for more info on convenience macros.
+"""
 macro use_field!(exprs...)
     esc(:(use_field!(pmodel, params, $(eqtokw!(exprs)...))))
 end

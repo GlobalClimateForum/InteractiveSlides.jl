@@ -13,6 +13,19 @@ struct Slide
     num_states::Int
 end
 
+"""
+    slide(slides::Vector{Slide}, params::Dict, HTMLelem...; num_states = 1, class = ""::String, title = ""::String, HTMLattr...)
+
+Takes a vector of slides, and appends another slide to it (which is generated according to params and the HTML elements which are supplied as args).
+
+### Example
+```julia
+julia> params = Dict(:team_id => 1, :is_controller => false, :shift => 0)
+julia> slide(Slide[], params, h1("Heading"), p("Content"))
+1-element Vector{Slide}:
+ Slide("Heading", Dict{Symbol, Any}(:class => "slide "), "<q-page class=\"slide \" v-show='1 == slide_id1 + 0'><h1>Heading</h1><p>Content</p></q-page>", 1)
+```
+"""
 function slide(slides::Vector{Slide}, params::Dict, HTMLelem...; num_states = 1, class = ""::String, title = ""::String, HTMLattr...)
     HTMLattr = Dict(HTMLattr)
     if isempty(HTMLattr)
@@ -67,16 +80,17 @@ function ui(pmodel::ReactiveModel, gen_content::Function, request_params::Dict{S
     params[:team_id] > pmodel.num_teams[] && return "Only $(pmodel.num_teams[]) teams can participate as per current settings."
     if get(params, :reset, "0") != "0" || get(params, :modelreset, "0") != "0" || pmodel.reset_required[]
         params[:init] = true
-        ModelManager.reset_handlers()
+        ModelManager.delete_listeners()
         pmodel.reset_required[] = false
         pmodel.timer_isactive[] = false
     else
-        params[:init] = isempty(pmodel.counters) ? true : false #only initialize fields/handlers if they have not already been initialized
+        params[:init] = isempty(pmodel.counters) ? true : false #only initialize fields/listeners if they have not already been initialized
     end
     params[:shift] = try parse(Int, get(params, :shift, "0")); catch; return "Shift parameter needs to be an integer."; end
     params[:is_controller] = params[:shift] != 0 || get(params, :ctrl, "0") == "1"
     params[:persist_drawer] = params[:is_controller] #persist the drawer for controllers
     empty!(pmodel.counters)
+    println("num_teams =", pmodel.num_teams[])
     slides, auxUI = gen_content(pmodel, params)
     pmodel.num_slides[] = length(slides)
     pmodel.num_states[] = getproperty.(slides, :num_states)
@@ -118,7 +132,7 @@ macro state_controlled_class(class, state1, state2)
 end
 
 macro appear_on(state, take_space_before)
-    esc(:(@state_controlled_class($take_space_before ? "invisible" : "hidden", "abcde", "abcde", $state, 99)))
+    esc(:(@state_controlled_class($take_space_before ? "invisible" : "hidden", "abcde", "abcde", $state, 99))) #abcde has no function, it's only there because an empty string doesn't work here
 end
 
 macro hide_on(state, take_space_after)
@@ -161,6 +175,21 @@ function simpleslide(slides, params, heading, content...; contentstyle = "", con
     slide(slides, params, heading, Html.div([content...], style = style, class = "col " * contentclass); class = "column", kwargs...)
 end
 
+"""
+    @slide(exprs...)
+
+This macro returns an expression which calls the "slide" function with the args and kwargs you passed to it, plus the list "slides" and the dict "params". 
+It is thus merely for convenience, as it saves you from having to explicitly type pass "slides" and "params" everytime you want to create a slide.
+The macro thus requires slides and params to be defined within the scope it is called.
+### Example
+```julia
+julia> params = Dict(:team_id => 1, :is_controller => false, :shift => 0)
+julia> slides = Slide[]
+julia> @slide(h1("Heading"), p("Content"))
+1-element Vector{Slide}:
+ Slide("Heading", Dict{Symbol, Any}(:class => "slide "), "<q-page class=\"slide \" v-show='1 == slide_id1 + 0'><h1>Heading</h1><p>Content</p></q-page>", 1)
+```
+"""
 macro slide(exprs...)
     esc(:(slides = slide(slides, params, $(eqtokw!(exprs)...))))
 end
