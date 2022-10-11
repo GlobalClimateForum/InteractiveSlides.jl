@@ -78,7 +78,7 @@ end
 function ui(pmodel::ReactiveModel, gen_content::Function, request_params::Dict{Symbol, Any}, assets; kwargs...)
     params = merge!(Dict{Symbol, Any}(kwargs), request_params)
     params[:team_id] > pmodel.num_teams[] && return "Only $(pmodel.num_teams[]) teams can participate as per current settings."
-    if get(params, :reset, "0") != "0" || get(params, :modelreset, "0") != "0" || pmodel.reset_required[]
+    if get(params, :reset, "0") != "0" || pmodel.reset_required[]
         params[:init] = true
         ModelManager.delete_listeners()
         pmodel.reset_required[] = false

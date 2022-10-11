@@ -53,8 +53,8 @@ let pmodel_ref = Ref{Stipple.ReactiveModel}()
     #https://discourse.julialang.org/t/how-to-correctly-define-and-use-global-variables-in-the-module-in-julia/65720/6?u=jochen2
     #https://stackoverflow.com/questions/24541723/does-julia-support-static-variables-with-function-scope
     global get_or_create_pmodel
-    function get_or_create_pmodel(PresentationModel; force_create = false::Bool)
-        if !isassigned(pmodel_ref) || force_create
+    function get_or_create_pmodel(PresentationModel)
+        if !isassigned(pmodel_ref)
             pmodel_ref[] = create_pmodel(PresentationModel)
         end
         pmodel_ref[]

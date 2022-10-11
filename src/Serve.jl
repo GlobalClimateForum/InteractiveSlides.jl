@@ -32,11 +32,7 @@ function getAssets()
 end
 
 function build_presentation(PresModel::DataType, gen_content::Function, request_params::Dict{Symbol, Any}; kwargs...)
-    if get(request_params, :modelreset, "0") != "0"
-        pmodel = ModelInit.get_or_create_pmodel(PresModel; force_create = true)
-    else
-        pmodel = ModelInit.get_or_create_pmodel(PresModel)
-    end
+    pmodel = ModelInit.get_or_create_pmodel(PresModel)
     println("Time to build UI:")
     @time UI.ui(pmodel, gen_content, request_params, getAssets(); kwargs...) |> Stipple.html 
 end
