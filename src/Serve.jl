@@ -31,12 +31,6 @@ function getAssets()
     return out
 end
 
-function build_presentation(PresModel::DataType, gen_content::Function, request_params::Dict{Symbol, Any}; kwargs...)
-    pmodel = ModelInit.get_or_create_pmodel(PresModel)
-    println("Time to build UI:")
-    @time UI.ui(pmodel, gen_content, request_params, getAssets(); kwargs...) |> Stipple.html 
-end
-
 """
     serve_presentation(PresModel::DataType, gen_content::Function; 
     num_teams_default::Int = 1, max_num_teams = MAX_NUM_TEAMS::Int, use_Stipple_theme::Bool = false, kwargs...)
@@ -61,14 +55,7 @@ julia> serve_presentation(PresentationModel, gen_content; num_teams_default = 2,
 """
 function serve_presentation(PresModel::DataType, gen_content::Function; 
                             num_teams_default::Int = 1, max_num_teams = MAX_NUM_TEAMS::Int, use_Stipple_theme::Bool = false, kwargs...)
-    pmodel = ModelInit.get_or_create_pmodel(PresModel)
-    pmodel.num_teams[] = num_teams_default
-    if max_num_teams <= MAX_NUM_TEAMS; 
-        pmodel.max_num_teams[] = max_num_teams 
-    else
-        error("Currently no more than $MAX_NUM_TEAMS teams are supported by InteractiveSlides.jl. 
-               Please change keyword argument 'max_num_teams' accordingly.")
-    end
+    pmodel = ModelInit.get_or_create_pmodel(PresModel; num_teams_default, max_num_teams)
 
     !use_Stipple_theme && Genie.Router.delete!(Symbol("get_stipple.jl_master_assets_css_stipplecore.css")) 
     push!(Stipple.Layout.THEMES, () -> [Stipple.stylesheet("css/theme.css"), ""])
@@ -77,16 +64,15 @@ function serve_presentation(PresModel::DataType, gen_content::Function;
     add_js("hotkeys", subfolder = "js")
 
     Genie.route("/") do
-        pmodel = ModelInit.get_or_create_pmodel(PresModel)
         UI.ui_landing(pmodel) |> Stipple.html
     end
 
     Genie.route("/:team_id::Int/") do
-        build_presentation(PresModel, gen_content, Genie.params(); kwargs...)
+        println("Time to build HTML:")
+        @time UI.ui(pmodel, gen_content, Genie.params(), getAssets(); kwargs...) |> Stipple.html 
     end
 
     Genie.route("/settings") do
-        pmodel = ModelInit.get_or_create_pmodel(PresModel)
         UI.ui_setting(pmodel) |> Stipple.html
     end
 end

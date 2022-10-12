@@ -1,7 +1,7 @@
 name = "InteractiveSlides"
 uuid = "e0adfb67-6a19-4170-8314-b8ef321cb235"
 authors = ["Jochen Krattenmacher"]
-version = "0.25.1"
+version = "0.25.2"
 
 [compat]
 julia = "^1.7.3"

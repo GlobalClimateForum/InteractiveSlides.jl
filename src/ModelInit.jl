@@ -53,9 +53,16 @@ let pmodel_ref = Ref{Stipple.ReactiveModel}()
     #https://discourse.julialang.org/t/how-to-correctly-define-and-use-global-variables-in-the-module-in-julia/65720/6?u=jochen2
     #https://stackoverflow.com/questions/24541723/does-julia-support-static-variables-with-function-scope
     global get_or_create_pmodel
-    function get_or_create_pmodel(PresentationModel)
+    function get_or_create_pmodel(PresentationModel; num_teams_default = 1::Int, max_num_teams = MAX_NUM_TEAMS::Int)
         if !isassigned(pmodel_ref)
             pmodel_ref[] = create_pmodel(PresentationModel)
+            pmodel_ref[].num_teams[] = num_teams_default
+            if max_num_teams <= MAX_NUM_TEAMS; 
+                pmodel_ref[].max_num_teams[] = max_num_teams 
+            else
+                error("Currently no more than $MAX_NUM_TEAMS teams are supported by InteractiveSlides.jl. 
+                       Please change keyword argument 'max_num_teams' accordingly.")
+            end
         end
         pmodel_ref[]
     end

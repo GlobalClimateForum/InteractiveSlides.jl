@@ -90,7 +90,6 @@ function ui(pmodel::ReactiveModel, gen_content::Function, request_params::Dict{S
     params[:is_controller] = params[:shift] != 0 || get(params, :ctrl, "0") == "1"
     params[:persist_drawer] = params[:is_controller] #persist the drawer for controllers
     empty!(pmodel.counters)
-    println("num_teams =", pmodel.num_teams[])
     slides, auxUI = gen_content(pmodel, params)
     pmodel.num_slides[] = length(slides)
     pmodel.num_states[] = getproperty.(slides, :num_states)
