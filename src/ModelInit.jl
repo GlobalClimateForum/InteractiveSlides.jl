@@ -1,6 +1,6 @@
 module ModelInit
 import Mixers, ..Stipple, ..to_fieldname, ..MAX_NUM_TEAMS
-export @presentation!, @addfields, get_or_create_pmodel, PresentationModel, reset_counters
+export @presentation!, @addfields, get_or_create_pmodel, PresentationModel
 
 function addfields(name::String, num::Int, type, init)
     [esc(Expr(:(=), 

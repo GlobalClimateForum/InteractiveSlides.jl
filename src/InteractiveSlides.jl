@@ -10,10 +10,15 @@ include("ModelInit.jl")
 include("ModelManager.jl")
 @reexport using .ModelManager
 
-include("UI.jl")
-@reexport using .UI
+@reexport using StippleUI
+
+include("Build.jl")
+@reexport using .Build
 
 include("Serve.jl")
 @reexport using .Serve
+
+include("Elements.jl")
+@reexport using .Elements
 
 end

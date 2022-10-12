@@ -1,8 +1,7 @@
-module UI
-using ..Stipple
-import ..eqtokw!, ..Reexport, ..ModelManager, ..MAX_NUM_TEAMS
-Reexport.@reexport using StippleUI
-export Slide, ui, ui_setting, ui_landing, slide, titleslide, iftitleslide, slide_id, navcontrols, menu_slides
+module Elements
+using ..Stipple, ..StippleUI
+import ..eqtokw!
+export Slide, slide, titleslide, iftitleslide, slide_id, navcontrols, menu_slides
 export @v__bind, @state_controlled_class, @appear_on, @hide_on, @show_from_to
 export spacer, autocell, simplelist, simpleslide, @slide, @titleslide, @simpleslide #convenience functions
 
@@ -75,50 +74,7 @@ function menu_slides(slides::Vector{Slide}, params::Dict, item_fun; side = "left
     drawer(v__model = drawerstr, listHTML; side)
 end
 
-function ui(pmodel::ReactiveModel, gen_content::Function, request_params::Dict{Symbol, Any}, assets; kwargs...)
-    params = merge!(Dict{Symbol, Any}(kwargs), request_params)
-    params[:team_id] > pmodel.num_teams[] && return "Only $(pmodel.num_teams[]) teams can participate as per current settings."
-    if get(params, :reset, "0") != "0" || pmodel.reset_required[]
-        params[:init] = true
-        ModelManager.delete_listeners()
-        pmodel.reset_required[] = false
-        pmodel.timer_isactive[] = false
-    else
-        params[:init] = isempty(pmodel.counters) ? true : false #only initialize fields/listeners if they have not already been initialized
-    end
-    params[:shift] = try parse(Int, get(params, :shift, "0")); catch; return "Shift parameter needs to be an integer."; end
-    params[:is_controller] = params[:shift] != 0 || get(params, :ctrl, "0") == "1"
-    params[:persist_drawer] = params[:is_controller] #persist the drawer for controllers
-    empty!(pmodel.counters)
-    slides, auxUI = gen_content(pmodel, params)
-    pmodel.num_slides[] = length(slides)
-    pmodel.num_states[] = getproperty.(slides, :num_states)
-    page(pmodel,
-    [
-        StippleUI.Layouts.layout(view="hHh lpR lFf", [
-            auxUI,
-            Html.div(v__hotkeys = "$(params[:team_id])"),
-            quasar(:page__container, 
-                getproperty.(slides, :body)
-            )
-        ], 
-        v__cloak = true), #https://v2.vuejs.org/v2/api/#v-cloak
-    ], push!(assets, script("setTimeout('hljs.highlightAll()', 100);")),
-    )
-end
-
-function ui_setting(pmodel::ReactiveModel)
-    page(pmodel, [h2("Settings", style = "margin: 1rem"), row([
-        cell("Number of teams"; size = 3), 
-        cell(slider(1:1:pmodel.max_num_teams[], :num_teams; draggable = true, snap = true, step = 1, marker__labels = true, style = "padding:1rem"); size = 5)
-        ], class = "flex-center")], class = "settings-page")
-end
-
-function ui_landing(pmodel::ReactiveModel)
-    page(pmodel, [h2("Welcome", style = "margin: 1rem"), list(
-        append!(["""<a href="$id">Team $id</a> <a href="$id?ctrl=1">Controller $id</a><br>""" for id in 1:pmodel.num_teams[]], [item(item_section(a("Settings", href = "settings")))])
-        )], class = "landing-page")
-end
+####################### Macros which allow to modify HTML elements based on slide state ####################
 
 macro state_controlled_class(class1, class2, class3, state1, state2)
     esc(:(@v__bind("[{  $($class1): slide_state$(params[:team_id]) < $($state1),
