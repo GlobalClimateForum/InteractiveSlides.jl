@@ -1,4 +1,4 @@
-export Slide, slide, titleslide, simpleslide, @slide, @titleslide, @simpleslide
+export Slide, slide, titleslide, controllerslide, simpleslide, @slide, @titleslide, @controllerslide, @simpleslide
 
 struct Slide
     title::String
@@ -44,6 +44,10 @@ function titleslide(args...; class = "text-center flex-center"::String, title = 
     slide(args...; class = "titleslide " * class, title, HTMLattr...)
 end
 
+function controllerslide(slides, params, args...; class = "text-center flex-center"::String, title = ""::String, HTMLattr...)
+    params[:URLid] > 0 ? slides : slide(slides, params, args...; class = "controllerslide " * class, title, HTMLattr...)
+end
+
 function simpleslide(slides, params, heading, content...; contentstyle = "", contentclass = "flex-center", kwargs...)
     style = "height:100%; display:flex;" * contentstyle
     slide(slides, params, heading, Html.div([content...], style = style, class = "col " * contentclass); class = "column", kwargs...)
@@ -70,6 +74,10 @@ end
 
 macro titleslide(exprs...)
     esc(:(slides = titleslide(slides, params, $(eqtokw!(exprs)...))))
+end
+
+macro controllerslide(exprs...)
+    esc(:(slides = controllerslide(slides, params, $(eqtokw!(exprs)...))))
 end
 
 macro simpleslide(exprs...)
