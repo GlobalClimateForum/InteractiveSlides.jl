@@ -2,7 +2,7 @@ export iftitleslide, @v__bind, @state_controlled_class, @appear_on, @hide_on, @s
 
 function iftitleslide(slides::Vector{Slide}, params::Dict)
     titleslide_ids = findall(contains.([slide.HTMLattr[:class] for slide in slides], "titleslide"))
-    isempty(titleslide_ids) ? "" : @iif("!$titleslide_ids.includes(slide_id$(params[:team_id]))")
+    isempty(titleslide_ids) ? "" : @iif("!$titleslide_ids.includes(slide_id$(params[:URLid]))")
 end
 
 macro v__bind(expr, type)
@@ -12,13 +12,13 @@ end
 ####################### Macros which allow to modify HTML elements based on slide state ####################
 
 macro state_controlled_class(class1, class2, class3, state1, state2)
-    esc(:(@v__bind("[{  $($class1): slide_state$(params[:team_id]) < $($state1),
-                        $($class2): slide_state$(params[:team_id]) >= $($state1) && slide_state$(params[:team_id]) <= $($state2),
-                        $($class3): slide_state$(params[:team_id]) > $($state2) }]", :class)))
+    esc(:(@v__bind("[{  $($class1): slide_state$(params[:URLid]) < $($state1),
+                        $($class2): slide_state$(params[:URLid]) >= $($state1) && slide_state$(params[:URLid]) <= $($state2),
+                        $($class3): slide_state$(params[:URLid]) > $($state2) }]", :class)))
 end
 
 macro state_controlled_class(class, state1, state2)
-    esc(:(@v__bind("[{ $($class): slide_state$(params[:team_id]) >= $($state1) && slide_state$(params[:team_id]) <= $($state2) }]", :class)))
+    esc(:(@v__bind("[{ $($class): slide_state$(params[:URLid]) >= $($state1) && slide_state$(params[:URLid]) <= $($state2) }]", :class)))
 end
 
 macro appear_on(state, take_space_before)

@@ -28,10 +28,13 @@ Mixers.@mix Stipple.@with_kw struct presentation!
     max_num_teams::R{Int} = 1
     num_slides::R{Int} = 0
     num_states::R{Vector{Int}} = []
+    slide_id0::R{Int} = 1
+    slide_state0::R{Int} = 1
+    drawer0::R{Bool} = false
     @addfields("slide_id", ::Int, 1)
     @addfields("slide_state", ::Int, 1)
     @addfields("drawer", ::Bool, false)
-    @addfields("drawer_controller", ::Bool, false)
+    @addfields("drawer_shift", ::Bool, false)
 end
 
 function create_pmodel(PresentationModel)

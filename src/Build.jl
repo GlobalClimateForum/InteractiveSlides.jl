@@ -9,7 +9,7 @@ function presentation(pmodel::ReactiveModel, gen_content::Function, params::Dict
     [
         StippleUI.Layouts.layout(view="hHh lpR lFf", [
             auxUI,
-            Html.div(v__hotkeys = "$(params[:team_id])"),
+            Html.div(v__hotkeys = "$(params[:URLid])"),
             quasar(:page__container, 
                 getproperty.(slides, :body)
             )

@@ -40,7 +40,9 @@ function standard_assets(use_Stipple_theme::Bool)
 end
 
 function prep_pmodel_and_params!(pmodel, params)
-    params[:team_id] > pmodel.num_teams[] && return "Only $(pmodel.num_teams[]) teams can participate as per current settings."
+    params[:URLid] > pmodel.num_teams[] && return "Only $(pmodel.num_teams[]) teams can participate as per current settings."
+    params[:show_whole_slide] = params[:URLid] == 0 || haskey(params, :shift)
+    params[:team_id] = max(params[:URLid], 1)
     if get(params, :reset, "0") != "0" || pmodel.reset_required[]
         params[:init] = true
         ModelManager.delete_listeners()
@@ -49,9 +51,8 @@ function prep_pmodel_and_params!(pmodel, params)
     else
         params[:init] = isempty(pmodel.counters) ? true : false #only initialize fields/listeners if they have not already been initialized
     end
+    params[:drawerstr] = haskey(params, :shift) ? "drawer_shift$(params[:URLid])" : "drawer$(params[:URLid])"
     params[:shift] = try parse(Int, get(params, :shift, "0")); catch; return "Shift parameter needs to be an integer."; end
-    params[:is_controller] = params[:shift] != 0 || get(params, :ctrl, "0") == "1"
-    params[:persist_drawer] = params[:is_controller] #persist the drawer for controllers
     empty!(pmodel.counters)
 end
 
@@ -88,7 +89,7 @@ function serve_presentation(PresModel::DataType, gen_content::Function;
         Build.landing(pmodel) |> Stipple.html
     end
 
-    Genie.route("/:team_id::Int/") do
+    Genie.route("/:URLid::Int/") do
         params = merge!(Dict{Symbol, Any}(kwargs), Genie.params())
         prep_pmodel_and_params!(pmodel, params)
         println("Time to build HTML:")

@@ -4,18 +4,18 @@ Vue.directive('hotkeys', {
     const params = new Proxy(new URLSearchParams(window.location.search), {
       get: (searchParams, prop) => searchParams.get(prop),
     }); //https://stackoverflow.com/questions/901115/how-can-i-get-query-string-values-in-javascript
-    iscontroller = !(params.shift == null) || !(params.ctrl == null);
+    is_shift = !(params.shift == null);
 
     this._keyListener = function(e) {
       var activeElement = document.activeElement;
       var inputs = ['input', 'select', 'button', 'textarea'];
 
-      team_id = binding.expression
-      slide_id = 'PresentationModel.slide_id' + team_id
-      slide_state = 'PresentationModel.slide_state' + team_id
+      URLid = binding.expression
+      slide_id = 'PresentationModel.slide_id' + URLid
+      slide_state = 'PresentationModel.slide_state' + URLid
       num_states = 'PresentationModel.num_states[' + slide_id + '-1]'
-      drawer = 'PresentationModel.drawer' + team_id
-      drawer_controller = 'PresentationModel.drawer_controller' + team_id
+      drawer = 'PresentationModel.drawer' + URLid
+      drawer_shift = 'PresentationModel.drawer_shift' + URLid
 
       // the logic below could also be implemented in the form of listeners on slide_state instead (see commit for version 0.18.2), however, the below solution is more performant (immediate switch between slides)
       if (!inputs.indexOf(activeElement.tagName.toLowerCase()) == -1 || !activeElement.hasAttribute("contenteditable")) { //do nothing if user is writing something
@@ -27,8 +27,8 @@ Vue.directive('hotkeys', {
         eval(slide_state + "== 1 ?" + slide_id + '> 1 ? (' + slide_id + '--, ' + slide_state + '=' + num_states + ') : null : ' + slide_state + '--;');
         break;
       case "m":
-        if (iscontroller) {
-          eval(drawer_controller + '= !' + drawer_controller + ';');
+        if (is_shift) {
+          eval(drawer_shift + '= !' + drawer_shift + ';');
         }
         else {
           eval(drawer + '= !' + drawer + ';');
