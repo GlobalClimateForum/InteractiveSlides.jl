@@ -21,7 +21,7 @@ Vue.directive('hotkeys', {
       if (!inputs.indexOf(activeElement.tagName.toLowerCase()) == -1 || !activeElement.hasAttribute("contenteditable")) { //do nothing if user is writing something
       switch (e.key) {
       case "ArrowRight":
-        eval(slide_state + "==" + num_states + "?" + slide_id + '< PresentationModel.num_slides ? (' + slide_id + '++, ' + slide_state + '=1) : null : ' + slide_state + '++;');
+        eval(slide_state + ">=" + num_states + "?" + slide_id + '< PresentationModel.num_slides ? (' + slide_id + '++, ' + slide_state + '=1) : null : ' + slide_state + '++;');
         break;
       case "ArrowLeft":
         eval(slide_state + "== 1 ?" + slide_id + '> 1 ? (' + slide_id + '--, ' + slide_state + '=' + num_states + ') : null : ' + slide_state + '--;');
