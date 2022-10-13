@@ -1,4 +1,4 @@
-export hide_on_titleslide, @hide_on_titleslide, @v__bind, linktoslide, @linktoslide
+export hide_on_titleslide, @hide_on_titleslide, @v__bind
 export @state_controlled_class, @appear_on, @hide_on, @show_from_to
 
 """
@@ -18,26 +18,6 @@ end
 
 macro v__bind(expr, type)
     :( "v-bind:$($(esc(type)))='$($(esc(expr)))'" )
-end
-
-"""
-    linktoslide(params::Dict, linktext::AbstractString, operator::AbstractString, kwargs...)
-
-Returns a link to a slide. 'Operator' is a string and can either be absolute
-(e.g. "=5" for link to slide 5) or relative (e.g. "-=1" for link to the previous slide).
-
-### Example
-```julia
-julia> @linktoslide(Dict(:URLid => 0), "Link to slide 1", "=1")
-"<a onclick=\"PresentationModel.slide_id0 =1\" href=\"javascript:void(0);\">Link to slide 1</a>"
-```
-"""
-function linktoslide(params::Dict, linktext::AbstractString, operator::AbstractString, kwargs...)
-    a(linktext, onclick = "PresentationModel.slide_id$(params[:URLid]) $operator", href = "javascript:void(0);", kwargs...)
-end
-
-macro linktoslide(exprs...)
-    esc(:(linktoslide(params, $(eqtokw!(exprs)...))))
 end
 
 ####################### Macros which allow to modify HTML elements based on slide state ####################

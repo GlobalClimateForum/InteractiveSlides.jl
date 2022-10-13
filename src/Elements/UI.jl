@@ -1,4 +1,5 @@
 export slide_id, @slide_id, navcontrols, @navcontrols, menu_slides, spacer, autocell, simplelist
+export linktoslide, @linktoslide
 
 """
     navcontrols(params::Dict; icon_menu = "menu", icon_toLeft = "chevron_left", icon_toRight = "navigate_next")
@@ -42,5 +43,29 @@ autocell(args...; sizestr = "sm", kwargs...) = Html.div(args...; class = "col-$s
 function simplelist(args...; ordered = false, cellfun = autocell, size = 0, kwargs...)
     if ordered listfun = ol else listfun = ul end
     cellfun(listfun(
-        [contains(x, "<") ? x : li(x) for x in args]; kwargs...); size)
+        [startswith(x, "<div") ? x : li(x) for x in args]; kwargs...); size)
 end
+
+"""
+    linktoslide(params::Dict, linktext::AbstractString, operator::AbstractString, kwargs...)
+
+Returns a link to a slide. 'Operator' is a string and can either be absolute
+(e.g. "=5" for link to slide 5) or relative (e.g. "-=1" for link to the previous slide).
+
+### Example
+```julia
+julia> @linktoslide(Dict(:URLid => 0), "Link to slide 1", "=1")
+"<a onclick=\"PresentationModel.slide_id0 =1\" href=\"javascript:void(0);\">Link to slide 1</a>"
+```
+"""
+function linktoslide(params::Dict, linktext::AbstractString, operator::AbstractString, args...; kwargs...)
+    a(linktext, onclick = "PresentationModel.slide_id$(params[:URLid]) $operator", href = "javascript:void(0);", args...; kwargs...)
+end
+
+macro linktoslide(linktext, operator, exprs...)
+    esc(:(linktoslide(params, $linktext, $operator, $(eqtokw!(exprs)...))))
+end
+
+register_normal_element("q__header", context = @__MODULE__)
+
+register_normal_element("q__footer", context = @__MODULE__)
