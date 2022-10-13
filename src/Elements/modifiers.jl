@@ -9,7 +9,7 @@ Other kinds of slides are also possible by passing a corresponding "class" kwarg
 """
 function hide_on_titleslide(slides::Vector{Slide}, params::Dict; class = "titleslide")
     slide_ids = findall(contains.([slide.HTMLattr[:class] for slide in slides], class))
-    isempty(slide_ids) ? "" : @iif("!$slide_ids.includes(slide_id$(params[:URLid]))")
+    isempty(slide_ids) ? "" : @showif("!$slide_ids.includes(slide_id$(params[:URLid]))")
 end
 
 macro hide_on_titleslide(exprs...)
