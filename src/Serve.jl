@@ -66,6 +66,10 @@ and uses them to generate the presentation (and set up a route to it).
 It also sets up routes for the landing page, the settings page, as well as css files and vue.js files in the /public folder.
 The content-generating function needs to take two arguments, "pmodel" and "params" (which should be named as such for macros such as @slide to work),
 and should return a list of slides as well as an HTML element defining "auxilliary" UI elements such as header, footer, and drawer.
+
+Any kwargs you pass to serve_presentation will be available in the params dict. Also, they will be passed on to the Build functions 
+which are called on every page load. Currently, one use of this is that you can pass a kwarg named "qview" (see Build.jl).
+
 ### Example
 ```julia
 julia> @presentation! struct PresentationModel <: ReactiveModel
@@ -75,7 +79,7 @@ julia> function gen_content(pmodel::PresentationModel, params::Dict)
             auxUI = ""
             return slides, auxUI
        end
-julia> serve_presentation(PresentationModel, gen_content; num_teams_default = 2, max_num_teams = 4)
+julia> serve_presentation(PresentationModel, gen_content; num_teams_default = 2, max_num_teams = 4, qview = "lHh lpR lFf")
 ```
 """
 function serve_presentation(PresModel::DataType, gen_content::Function; 
@@ -86,18 +90,18 @@ function serve_presentation(PresModel::DataType, gen_content::Function;
     pmodel = ModelInit.get_or_create_pmodel(PresModel; num_teams_default, max_num_teams)
 
     Genie.route("/") do
-        Build.landing(pmodel) |> Stipple.html
+        Build.landing(pmodel; kwargs...) |> Stipple.html
     end
 
     Genie.route("/:URLid::Int/") do
         params = merge!(Dict{Symbol, Any}(kwargs), Genie.params())
         prep_pmodel_and_params!(pmodel, params)
         println("Time to build HTML:")
-        @time Build.presentation(pmodel, gen_content, params, get_assets()) |> Stipple.html 
+        @time Build.presentation(pmodel, gen_content, params, get_assets(); kwargs...) |> Stipple.html 
     end
 
     Genie.route("/settings") do
-        Build.settings(pmodel) |> Stipple.html
+        Build.settings(pmodel; kwargs...) |> Stipple.html
     end
 end
 

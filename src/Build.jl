@@ -1,16 +1,16 @@
 module Build
 using ..Stipple, ..StippleUI
 
-function presentation(pmodel::ReactiveModel, gen_content::Function, params::Dict{Symbol, Any}, assets; kwargs...)
+function presentation(pmodel::ReactiveModel, gen_content::Function, params::Dict{Symbol, Any}, assets; qview = "hHh lpR fFf")
     slides, auxUI = gen_content(pmodel, params)
     pmodel.num_slides[] = length(slides)
     pmodel.num_states[] = getproperty.(slides, :num_states)
     page(pmodel,
     [
-        StippleUI.Layouts.layout(view="hHh lpR lFf", [
+        StippleUI.Layouts.layout(view = qview, [ #see https://v1.quasar.dev/layout/layout#understanding-the-view-prop
             auxUI,
             Html.div(v__hotkeys = "$(params[:URLid])"),
-            quasar(:page__container, 
+            page_container(
                 getproperty.(slides, :body)
             )
         ], 
@@ -28,7 +28,8 @@ end
 
 function landing(pmodel::ReactiveModel)
     page(pmodel, [h2("Welcome", style = "margin: 1rem"), list(
-        append!(["""<a href="$id">Team $id</a> <a href="$id?ctrl=1">Controller $id</a><br>""" for id in 1:pmodel.num_teams[]], [item(item_section(a("Settings", href = "settings")))])
+        append!(["""<a href="$id">Team $id</a> <a href="$id?shift=1">One slide ahead $id</a><br>""" for id in 1:pmodel.num_teams[]], 
+            [item(item_section(a("Controller", href = "0"))), item(item_section(a("Settings", href = "settings")))])
         )], class = "landing-page")
 end
 
