@@ -15,7 +15,7 @@ function presentation(pmodel::ReactiveModel, gen_content::Function, params::Dict
             )
         ], 
         v__cloak = true), #https://v2.vuejs.org/v2/api/#v-cloak
-    ], push!(assets),
+    ], assets,
     )
 end
 
