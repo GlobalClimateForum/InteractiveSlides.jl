@@ -10,7 +10,7 @@ function add_js(file::AbstractString; basedir = @__DIR__, subfolder = "", prefix
     :javascript) |> Genie.Renderer.respond
     end
     filename = splitpath(file)[end]
-    Stipple.DEPS[Symbol(filename)] = () -> [Stipple.script(src = "/interactiveslides.jl/$filename.js")]
+    Stipple.DEPS[Symbol(file)] = () -> [Stipple.script(src = "/interactiveslides.jl/$(lowercase(filename)).js")]
 end
 
 function get_assets()
@@ -21,10 +21,8 @@ function get_assets()
             if endswith(fileandfolder, ".css") && !endswith(fileandfolder, "theme.css") 
                 #theme.css is loaded differently, in standard_assets(), as otherwise theme.css would be loaded before inline styles
                 push!(out, Stipple.stylesheet(fileandfolder))
-            elseif endswith(fileandfolder, ".vue.js")
-                add_js(file, basedir = root)
             elseif endswith(fileandfolder, ".js")
-                push!(out, Stipple.script(src = fileandfolder))
+                add_js(file, basedir = root)
             end
         end
     end
@@ -37,6 +35,7 @@ function standard_assets(use_Stipple_theme::Bool)
 
     add_js("timer", subfolder = "js")
     add_js("hotkeys", subfolder = "js")
+    Stipple.DEPS[:hljs] = () -> [Stipple.script("setTimeout('hljs.highlightAll()', 100);")]
 end
 
 function prep_pmodel_and_params!(pmodel, params)
@@ -63,7 +62,7 @@ end
 
 High-level function which takes a reactive model definition and a function which generates content (both defined by the presentation creator) 
 and uses them to generate the presentation (and set up a route to it).
-It also sets up routes for the landing page, the settings page, as well as css files and vue.js files in the /public folder.
+It also sets up routes for the landing page, the settings page, as well as css files and javascript files in the /public folder.
 The content-generating function needs to take two arguments, "pmodel" and "params" (which should be named as such for macros such as @slide to work),
 and should return a list of slides as well as an HTML element defining "auxilliary" UI elements such as header, footer, and drawer.
 
