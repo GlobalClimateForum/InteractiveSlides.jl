@@ -27,6 +27,7 @@ function slide(slides::Vector{Slide}, params::Dict, HTMLelem...; num_states = 1,
     end
     HTMLattr[:class] = "slide " * class * ifelse(get(params, :show_whole_slide, false), " scroll-always", "")
     slide_id = length(slides) + 1
+    HTMLattr[:id] = slide_id
     if isempty(title) 
         try
             title = strip(match(r"(?<=\<h[1-2]\>).+(?=<)", String(HTMLelem[1])).match)

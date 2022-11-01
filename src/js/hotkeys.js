@@ -43,6 +43,9 @@ Vue.directive('hotkeys', {
       case "p":
         setTimeout(pauseTimer(), 50);
         break;
+      case "ArrowDown":
+        document.getElementById(eval(slide_id)).classList.add("scroll-always");
+        break;
       };
     }
     }

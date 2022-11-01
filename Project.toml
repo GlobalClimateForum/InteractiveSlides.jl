@@ -1,7 +1,7 @@
 name = "InteractiveSlides"
 uuid = "e0adfb67-6a19-4170-8314-b8ef321cb235"
 authors = ["Global Climate Forum, Jochen Krattenmacher"]
-version = "0.29.4"
+version = "0.29.5"
 
 [deps]
 Genie = "c43c736e-a2d1-11e8-161f-af95117fbd1e"
