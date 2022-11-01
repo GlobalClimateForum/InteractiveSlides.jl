@@ -35,7 +35,7 @@ function standard_assets(use_Stipple_theme::Bool)
 
     add_js("timer", subfolder = "js")
     add_js("hotkeys", subfolder = "js")
-    Stipple.DEPS[:hljs] = () -> [Stipple.script("setTimeout('hljs.highlightAll()', 100);")]
+    Stipple.DEPS[:hljs] = () -> [Stipple.script("setTimeout('hljs.highlightAll()', 1000);")]
 end
 
 function prep_pmodel_and_params!(pmodel, params)
