@@ -15,7 +15,7 @@ end
 
 function get_assets()
     out = []
-    for (root, dirs, files) in walkdir("public")
+    for (root, dirs, files) in walkdir(Genie.config.server_document_root)
         for file in files
             fileandfolder = joinpath(push!(splitpath(root)[2:end], file))
             if endswith(fileandfolder, ".css") && !endswith(fileandfolder, "theme.css") 

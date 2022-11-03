@@ -43,7 +43,7 @@ autocell(args...; sizestr = "sm", kwargs...) = Html.div(args...; class = "col-$s
 function simplelist(args...; ordered = false, cellfun = autocell, size = 0, kwargs...)
     if ordered listfun = ol else listfun = ul end
     cellfun(listfun(
-        [startswith(x, "<div") ? x : li(x) for x in args]; kwargs...); size)
+        [startswith(x, "<div") || startswith(x, "<br") ? x : li(x) for x in args]; kwargs...); size)
 end
 
 """
