@@ -39,7 +39,7 @@ end
 
 function create_pmodel(PresentationModel)
     println("Time to initialize model:")
-    @time pmodel = Stipple.init(PresentationModel)
+    @time pmodel = Stipple.init(PresentationModel, vue_app_name = "pmodel")
     Stipple.on(pmodel.isready) do ready
         ready || return
         push!(pmodel)        

@@ -104,4 +104,8 @@ function serve_presentation(PresModel::DataType, gen_content::Function;
     end
 end
 
+function Stipple.root(app::Type{M})::String where {M<:Stipple.ReactiveModel}
+    "pmodel"
+  end
+
 end

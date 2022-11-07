@@ -5,9 +5,9 @@
 function checkIfChanged() { 
   //this is to avoid multiple timers at the same time. Checking timer_isactive fails upon page reload (won't be set to false even though it should be)
   return new Promise((resolve, reject) => {
-    previous = PresentationModel.timer;
+    previous = pmodel.timer;
     setTimeout(() => {
-      resolve(PresentationModel.timer != previous);
+      resolve(pmodel.timer != previous);
     }, 1300);
   });
 }
@@ -15,10 +15,10 @@ function checkIfChanged() {
 async function count(step) {
   hasChanged = await checkIfChanged();
   if (!hasChanged) {
-    PresentationModel.timer_isactive = true
+    pmodel.timer_isactive = true
     function Increment() {
-      if (PresentationModel.timer_isactive) {
-        PresentationModel.timer += step;
+      if (pmodel.timer_isactive) {
+        pmodel.timer += step;
         setTimeout(Increment.bind(this), 1000);
       }
     }
@@ -35,5 +35,5 @@ function countUp() {
 }
   
 function pauseTimer() {
-  PresentationModel.timer_isactive = false
+  pmodel.timer_isactive = false
 }
