@@ -55,11 +55,11 @@ Returns a link to a slide. 'Operator' is a string and can either be absolute
 ### Example
 ```julia
 julia> @linktoslide(Dict(:URLid => 0), "Link to slide 1", "=1")
-"<a onclick=\"PresentationModel.slide_id0 =1\" href=\"javascript:void(0);\">Link to slide 1</a>"
+"<a onclick=\"pmodel.slide_id0 =1\" href=\"javascript:void(0);\">Link to slide 1</a>"
 ```
 """
 function linktoslide(params::Dict, linktext::AbstractString, operator::AbstractString, args...; kwargs...)
-    a(linktext, onclick = "PresentationModel.slide_id$(params[:URLid]) $operator", href = "javascript:void(0);", args...; kwargs...)
+    a(linktext, onclick = "pmodel.slide_id$(params[:URLid]) $operator", href = "javascript:void(0);", args...; kwargs...)
 end
 
 macro linktoslide(linktext, operator, exprs...)
