@@ -70,7 +70,9 @@ register_normal_element("q__header", context = @__MODULE__)
 
 register_normal_element("q__footer", context = @__MODULE__)
 
-function two_columns(lcontent, rcontent; sizes = [6,6], class = "", style = "", lclass = "", rclass = "", lstyle = "", rstyle = "")
+column(args...; class = "", kwargs...) = Html.div(args...; class = class * " column", kwargs...)
+
+function two_columns(lcontent, rcontent; sizes = [6,6], class = "", style = "", lclass = "flex-center column", rclass = lclass, lstyle = "", rstyle = "")
     row([   cell(lcontent, class = lclass, style = lstyle, size = sizes[1])
             cell(rcontent, class = rclass, style = rstyle, size = sizes[2])
     ], class, style)
