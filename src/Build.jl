@@ -28,8 +28,8 @@ end
 
 function landing(pmodel::ReactiveModel)
     page(pmodel, [h2("Welcome", style = "margin: 1rem"), list(
-        append!(["""<a href="$id">Team $id</a> <a href="$id?shift=1">One slide ahead $id</a><br>""" for id in 1:pmodel.num_teams[]], 
-            [item(item_section(a("Controller", href = "0"))), item(item_section(a("Settings", href = "settings")))])
+        append!([item(item_section(btn("Team $id", type = "a", href = "$id"))) for id in 1:pmodel.num_teams[]], 
+            [item(item_section(btn("Controller", type = "a", href = "0"))), item(item_section(btn("Settings", type = "a", href = "settings")))])
         )], class = "landing-page")
 end
 
