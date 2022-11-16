@@ -1,6 +1,7 @@
 module InteractiveSlides
 using Reexport
-@reexport using Stipple
+@reexport using Stipple, StippleUI
+# Genie.Assets.assets_config!([Genie, Stipple, StippleUI], host = "https://cdn.statically.io/gh/GenieFramework")
 
 include("shared.jl")
 
@@ -9,8 +10,6 @@ include("ModelInit.jl")
 
 include("ModelManager.jl")
 @reexport using .ModelManager
-
-@reexport using StippleUI
 
 include("Build.jl")
 @reexport using .Build

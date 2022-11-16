@@ -1,5 +1,5 @@
 module Serve
-import ..Stipple, ..Genie, ..ModelInit, ..ModelManager, ..Build, ..MAX_NUM_TEAMS
+import ..Stipple, ..Genie, StipplePlotly, ..StippleUI, ..ModelInit, ..ModelManager, ..Build, ..MAX_NUM_TEAMS
 export serve_presentation
 
 function add_js(file::AbstractString; basedir = @__DIR__, subfolder = "", prefix = "", kwargs...)
@@ -29,12 +29,12 @@ function get_assets()
     return out
 end
 
-function standard_assets(use_Stipple_theme::Bool)
+function standard_assets(use_Stipple_theme::Bool; as_executable::Bool)
     !use_Stipple_theme && Genie.Router.delete!(Symbol("get_stipple.jl_master_assets_css_stipplecore.css")) 
     push!(Stipple.Layout.THEMES, () -> [Stipple.stylesheet("css/theme.css"), ""])
 
-    add_js("timer", subfolder = "js")
-    add_js("hotkeys", subfolder = "js")
+    !as_executable && add_js("timer", subfolder = "js")
+    !as_executable && add_js("hotkeys", subfolder = "js")
     Stipple.DEPS[:hljs] = () -> [Stipple.script("setTimeout('hljs.highlightAll()', 1000);")]
 end
 
@@ -81,10 +81,16 @@ julia> function gen_content(pmodel::PresentationModel, params::Dict)
 julia> serve_presentation(PresentationModel, gen_content; num_teams_default = 2, max_num_teams = 4, qview = "lHh lpR lFf")
 ```
 """
-function serve_presentation(PresModel::DataType, gen_content::Function; 
+function serve_presentation(PresModel::DataType, gen_content::Function; as_executable = false,
                             num_teams_default::Int = 1, max_num_teams = MAX_NUM_TEAMS::Int, use_Stipple_theme::Bool = false, kwargs...)
     
-    standard_assets(use_Stipple_theme)
+    standard_assets(use_Stipple_theme; as_executable)
+
+    if as_executable
+        delete!(Stipple.DEPS, StippleUI)
+        delete!(Stipple.DEPS, StipplePlotly)
+        Genie.assets_config.host = presdir
+    end
 
     pmodel = ModelInit.get_or_create_pmodel(PresModel; num_teams_default, max_num_teams)
 
@@ -106,6 +112,10 @@ end
 
 function Stipple.root(app::Type{M})::String where {M<:Stipple.ReactiveModel}
     "pmodel"
-  end
+end
+
+# function Genie.Assets.external_assets()
+#     true
+# end
 
 end
