@@ -21,7 +21,7 @@ function get_assets()
             if endswith(fileandfolder, ".css") && !endswith(fileandfolder, "theme.css") 
                 #theme.css is loaded differently, in standard_assets(), as otherwise theme.css would be loaded before inline styles
                 push!(out, Stipple.stylesheet(fileandfolder))
-            elseif endswith(fileandfolder, ".js")
+            elseif endswith(fileandfolder, ".js") && !(file in ["pollymer.js", "webthreads.js", "channels.js"])
                 add_js(file, basedir = root)
             end
         end
@@ -89,7 +89,6 @@ function serve_presentation(PresModel::DataType, gen_content::Function; as_execu
     if as_executable
         delete!(Stipple.DEPS, StippleUI)
         delete!(Stipple.DEPS, StipplePlotly)
-        Genie.assets_config.host = presdir
     end
 
     pmodel = ModelInit.get_or_create_pmodel(PresModel; num_teams_default, max_num_teams)
@@ -113,9 +112,5 @@ end
 function Stipple.root(app::Type{M})::String where {M<:Stipple.ReactiveModel}
     "pmodel"
 end
-
-# function Genie.Assets.external_assets()
-#     true
-# end
 
 end
