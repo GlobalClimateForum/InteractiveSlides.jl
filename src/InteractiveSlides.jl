@@ -1,6 +1,7 @@
 module InteractiveSlides
 using Reexport
-@reexport using Stipple, StippleUI  
+@reexport using Stipple, StippleUI, StipplePlotly
+include("assets.jl")
 
 include("shared.jl")
 const AS_EXECUTABLE  = Ref{Bool}(false)
@@ -13,8 +14,6 @@ include("ModelManager.jl")
 
 include("Build.jl")
 @reexport using .Build
-
-include("assets.jl")
 
 include("Serve.jl")
 @reexport using .Serve
