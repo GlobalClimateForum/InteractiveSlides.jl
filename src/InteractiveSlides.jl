@@ -1,20 +1,9 @@
 module InteractiveSlides
 using Reexport
-@reexport using Stipple, StippleUI
-# Genie.Assets.assets_config!([Genie, Stipple, StippleUI], host = "https://cdn.statically.io/gh/GenieFramework")
-
-function Genie.Assets.channels(channel::AbstractString = Genie.config.webchannels_default_route) :: String
-    string(Genie.Assets.js_settings(channel), Genie.Assets.embedded(Genie.Assets.asset_file(cwd=pwd(), prefix = "SenatsDT_public", type = "js", file = "channels")))
-end
-
-function Genie.Assets.webthreads(channel::String = Genie.config.webthreads_default_route) :: String
-    string(Genie.Assets.js_settings(channel),
-        Genie.Assets.embedded(Genie.Assets.asset_file(cwd=normpath(joinpath(@__DIR__, "..")), file="pollymer.js")),
-        Genie.Assets.embedded(Genie.Assets.asset_file(cwd=normpath(joinpath(@__DIR__, "..")), file="webthreads.js")))
-end
-  
+@reexport using Stipple, StippleUI  
 
 include("shared.jl")
+const AS_EXECUTABLE  = Ref{Bool}(false)
 
 include("ModelInit.jl")
 @reexport using .ModelInit
@@ -24,6 +13,8 @@ include("ModelManager.jl")
 
 include("Build.jl")
 @reexport using .Build
+
+include("assets.jl")
 
 include("Serve.jl")
 @reexport using .Serve

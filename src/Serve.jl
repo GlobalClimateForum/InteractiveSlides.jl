@@ -1,5 +1,5 @@
 module Serve
-import ..Stipple, ..Genie, StipplePlotly, ..StippleUI, ..ModelInit, ..ModelManager, ..Build, ..MAX_NUM_TEAMS
+import ..Stipple, ..Genie, StipplePlotly, ..StippleUI, ..ModelInit, ..ModelManager, ..Build, ..MAX_NUM_TEAMS, ..AS_EXECUTABLE
 export serve_presentation
 
 function add_js(file::AbstractString; basedir = @__DIR__, subfolder = "", prefix = "", kwargs...)
@@ -21,7 +21,7 @@ function get_assets()
             if endswith(fileandfolder, ".css") && !endswith(fileandfolder, "theme.css") 
                 #theme.css is loaded differently, in standard_assets(), as otherwise theme.css would be loaded before inline styles
                 push!(out, Stipple.stylesheet(fileandfolder))
-            elseif endswith(fileandfolder, ".js") && !(file in ["pollymer.js", "webthreads.js", "channels.js"])
+            elseif endswith(fileandfolder, ".js")
                 add_js(file, basedir = root)
             end
         end
@@ -89,6 +89,7 @@ function serve_presentation(PresModel::DataType, gen_content::Function; as_execu
     if as_executable
         delete!(Stipple.DEPS, StippleUI)
         delete!(Stipple.DEPS, StipplePlotly)
+        AS_EXECUTABLE[] = true
     end
 
     pmodel = ModelInit.get_or_create_pmodel(PresModel; num_teams_default, max_num_teams)
