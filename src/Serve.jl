@@ -119,7 +119,7 @@ function serve_presentation(PresModel::DataType, gen_content::Function; as_execu
     Genie.route("/:URLid::Int/") do
         params = merge!(Dict{Symbol, Any}(kwargs), Genie.params())
         prep_pmodel_and_params!(pmodel, params)
-        println("Time to build HTML:")
+        @info "Time to build HTML:"
         @time Build.presentation(pmodel, gen_content, params, get_assets(); kwargs...) |> Stipple.html 
     end
 
