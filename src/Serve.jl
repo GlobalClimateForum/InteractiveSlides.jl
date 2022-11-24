@@ -33,11 +33,11 @@ function get_assets()
     return out
 end
 
-function standard_assets(use_Stipple_theme::Bool; as_executable::Bool)
+function standard_assets(use_Stipple_theme::Bool; local_pkg_assets::Bool)
     !use_Stipple_theme && Genie.Router.delete!(Symbol("get_stipple.jl_master_assets_css_stipplecore.css")) 
-    basedir = as_executable ? pwd() : @__DIR__
-    subfolder = as_executable ? joinpath("assets", "js") : "js"
-    if as_executable
+    basedir = local_pkg_assets ? pwd() : @__DIR__
+    subfolder = local_pkg_assets ? joinpath("assets", "js") : "js"
+    if local_pkg_assets
         filter!((x) -> x != StippleUI.theme, Stipple.Layout.THEMES)
         delete!(Stipple.DEPS, StippleUI)
         delete!(Stipple.DEPS, StipplePlotly)
@@ -101,14 +101,11 @@ julia> function gen_content(pmodel::PresentationModel, params::Dict)
 julia> serve_presentation(PresentationModel, gen_content; num_teams_default = 2, max_num_teams = 4, qview = "lHh lpR lFf")
 ```
 """
-function serve_presentation(PresModel::DataType, gen_content::Function; as_executable = false,
+function serve_presentation(PresModel::DataType, gen_content::Function; as_executable = false, local_pkg_assets = as_executable,
                             num_teams_default::Int = 1, max_num_teams = MAX_NUM_TEAMS::Int, use_Stipple_theme::Bool = false, kwargs...)
     
-    standard_assets(use_Stipple_theme; as_executable)
-
-    if as_executable
-        AS_EXECUTABLE[] = true
-    end
+    standard_assets(use_Stipple_theme; local_pkg_assets)
+    AS_EXECUTABLE[] = as_executable
 
     pmodel = ModelInit.get_or_create_pmodel(PresModel; num_teams_default, max_num_teams)
 
