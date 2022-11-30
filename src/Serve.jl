@@ -101,7 +101,7 @@ julia> function gen_content(pmodel::PresentationModel, params::Dict)
 julia> serve_presentation(PresentationModel, gen_content; num_teams_default = 2, max_num_teams = 4, qview = "lHh lpR lFf")
 ```
 """
-function serve_presentation(PresModel::DataType, gen_content::Function; as_executable = false, local_pkg_assets = as_executable,
+function serve_presentation(PresModel::DataType, gen_content::Function; as_executable = false, local_pkg_assets = as_executable, custom_landing = false, custom_settings = false,
                             num_teams_default::Int = 1, max_num_teams = MAX_NUM_TEAMS::Int, use_Stipple_theme::Bool = false, kwargs...)
     
     standard_assets(use_Stipple_theme; local_pkg_assets)
@@ -109,8 +109,16 @@ function serve_presentation(PresModel::DataType, gen_content::Function; as_execu
 
     pmodel = ModelInit.get_or_create_pmodel(PresModel; num_teams_default, max_num_teams)
 
-    Genie.route("/") do
-        Build.landing(pmodel; kwargs...) |> Stipple.html
+    if !custom_landing
+        Genie.route("/") do
+            Build.landing(pmodel; kwargs...) |> Stipple.html
+        end
+    end
+
+    if !custom_settings
+        Genie.route("/settings") do
+            Build.settings(pmodel; kwargs...) |> Stipple.html
+        end
     end
 
     Genie.route("/:URLid::Int/") do
@@ -118,10 +126,6 @@ function serve_presentation(PresModel::DataType, gen_content::Function; as_execu
         prep_pmodel_and_params!(pmodel, params)
         @info "Time to build HTML:"
         @time Build.presentation(pmodel, gen_content, params, get_assets(); kwargs...) |> Stipple.html 
-    end
-
-    Genie.route("/settings") do
-        Build.settings(pmodel; kwargs...) |> Stipple.html
     end
 end
 
