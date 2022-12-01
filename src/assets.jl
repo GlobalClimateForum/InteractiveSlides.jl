@@ -1,3 +1,62 @@
+module Assets
+import ..Genie, ..Stipple, ..StippleUI, StipplePlotly, ..AS_EXECUTABLE
+
+function add_js(file::AbstractString; ext = ".js", basedir = @__DIR__, subfolder = "", prefix = "", kwargs...)
+    file = replace(file, ext => "")
+    Genie.Router.route(Genie.Assets.asset_path(file; ext, package = "InteractiveSlides.jl", type = "", prefix, kwargs...)) do
+    Genie.Renderer.WebRenderable(
+        Genie.Assets.embedded(Genie.Assets.asset_file(cwd=basedir; prefix, type = subfolder, ext, file)),
+    ext == ".js" ? :javascript : :css) |> Genie.Renderer.respond
+    end
+    filename = splitpath(file)[end]
+    if ext == ".js"
+        Stipple.DEPS[Symbol(file)] = () -> [Stipple.script(src = "/interactiveslides.jl/$(lowercase(filename)).js")]
+    else
+        push!(Stipple.Layout.THEMES, () -> [Stipple.stylesheet("/interactiveslides.jl/$(lowercase(filename)).css"), ""])
+    end
+end
+
+function get_assets()
+    out = []
+    for (root, dirs, files) in walkdir(Genie.config.server_document_root)
+        for file in files
+            fileandfolder = joinpath(push!(splitpath(root)[2:end], file))
+            if endswith(fileandfolder, ".css") && !endswith(fileandfolder, "theme.css") 
+                #theme.css is loaded differently, in standard_assets(), as otherwise theme.css would be loaded before inline styles
+                push!(out, Stipple.stylesheet(fileandfolder))
+            elseif endswith(fileandfolder, ".js")
+                add_js(file, basedir = root)
+            end
+        end
+    end
+    return out
+end
+
+function standard_assets(use_Stipple_theme::Bool; local_pkg_assets::Bool)
+    !use_Stipple_theme && Genie.Router.delete!(Symbol("get_stipple.jl_master_assets_css_stipplecore.css")) 
+    basedir = local_pkg_assets ? pwd() : @__DIR__
+    subfolder = local_pkg_assets ? joinpath("assets", "js") : "js"
+    if local_pkg_assets
+        filter!((x) -> x != StippleUI.theme, Stipple.Layout.THEMES)
+        delete!(Stipple.DEPS, StippleUI)
+        delete!(Stipple.DEPS, StipplePlotly)
+        for oldasset in [:get_stipplecorejs, :get_vuefiltersjs, :get_vuejs, :get_underscorejs, :get_keepalivejs, :get_watchersjs, :get_genielogosvg]
+            Genie.Router.delete!(oldasset)
+        end
+        for newasset in ["underscore-min", "vue.min", "stipplecore", "vue_filters", "watchers", "keepalive"]
+            add_js(newasset; basedir, subfolder) #Stipple assets
+        end
+        for newasset in ["plotly2.min", "resizesensor.min", "lodash.min", "vueresize.min", "vueplotly.min", "sentinel.min", "syncplot", "quasar.umd.min"]
+            add_js(newasset; basedir, subfolder) #StipplePlotly and StippleUI assets
+        end
+        add_js("quasar.min"; ext = ".css", basedir, subfolder = joinpath("assets", "css"))
+    end
+    add_js("timer"; basedir, subfolder)
+    add_js("hotkeys"; basedir, subfolder)
+    push!(Stipple.Layout.THEMES, () -> [Stipple.stylesheet("css/theme.css"), ""])
+    Stipple.DEPS[:hljs] = () -> [Stipple.script("setTimeout('hljs.highlightAll()', 1000);")]
+end
+
 #Genie assets
 
 get_module_path(m) = dirname(dirname(Base.functionloc(m.eval, Tuple{Nothing})[1]))
@@ -13,4 +72,5 @@ function Genie.Assets.webthreads(channel::String = Genie.config.webthreads_defau
     string(Genie.Assets.js_settings(channel),
         Genie.Assets.embedded(Genie.Assets.asset_file(; cwd = cwd_genie(), file="pollymer.js")),
         Genie.Assets.embedded(Genie.Assets.asset_file(; cwd = cwd_genie(), file="webthreads.js")))
+end
 end
