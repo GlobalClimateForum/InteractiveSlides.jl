@@ -1,7 +1,7 @@
 module ModelManager
 using ..Stipple
 import ..to_fieldname, ..eqtokw!
-export use_field!, use_fields!, new_listener
+export use_field!, use_fields!, new_listener, table_listener, @table_listener
 export @use_field!, @use_fields!, getslidefield, @getslidefield, getstatefield, @getstatefield #convenience functionss
 
 mutable struct ManagedField
@@ -57,6 +57,33 @@ let listeners = Observables.ObserverFunction[] #https://stackoverflow.com/questi
     end
 end
 
+function table_listener(num_teams, table, rows, fields; dict = Dict(false => "", true => "✓"))
+    typeof(rows) != Vector && (rows = [rows])
+    typeof(fields) != Vector && (fields = [fields])
+    for t_id in 1:num_teams
+        for (id, field) in enumerate(fields)
+            new_listener(field[t_id]) do choice
+                output = get(dict, choice, string(choice))
+                table.ref.data[!, t_id+1][rows[id]] = output
+                notify(table.ref)
+            end
+        end
+    end
+end
+
+function table_listener(num_teams, table, rows, field, available_choices; notchosen = "", chosen = "✓")
+    for t_id in 1:num_teams
+        new_listener(field[t_id]) do choices
+            choices_bool = falses(length(available_choices))
+            for choice in choices
+                choices_bool = choices_bool .|| contains.(available_choices, choice)
+            end
+            table.ref.data[!, t_id+1][rows] = [choice ? chosen : notchosen for choice in choices_bool]
+            notify(table.ref)
+        end
+    end
+end
+
 """
     new_listener
 
@@ -82,6 +109,10 @@ end
 
 macro use_fields!(exprs...)
     esc(:(use_fields!(pmodel, params, $(eqtokw!(exprs)...))))
+end
+
+macro table_listener(exprs...)
+    esc(:(table_listener(pmodel.num_teams[], $(eqtokw!(exprs)...))))
 end
 
 function getslidefield(pmodel::ReactiveModel, team_id::Int)
