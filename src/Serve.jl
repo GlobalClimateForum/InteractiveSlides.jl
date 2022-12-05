@@ -46,7 +46,7 @@ julia> serve_presentation(PresentationModel, gen_content; num_teams_default = 2,
 ```
 """
 function serve_presentation(PresModel::DataType, gen_content::Function; as_executable = false, local_pkg_assets = as_executable, custom_landing = false, custom_settings = false,
-                            num_teams_default::Int = 1, max_num_teams = MAX_NUM_TEAMS::Int, use_Stipple_theme::Bool = false, kwargs...)
+                            num_teams_default::Int = 1, max_num_teams = MAX_NUM_TEAMS::Int, use_Stipple_theme::Bool = false, isdev = false, qview = "hHh lpR fFf", kwargs...)
     
     Assets.standard_assets(use_Stipple_theme; local_pkg_assets)
     AS_EXECUTABLE[] = as_executable
@@ -55,13 +55,13 @@ function serve_presentation(PresModel::DataType, gen_content::Function; as_execu
 
     if !custom_landing
         Genie.route("/") do
-            Build.landing(pmodel; kwargs...) |> Stipple.html
+            Build.landing(pmodel) |> Stipple.html
         end
     end
 
     if !custom_settings
         Genie.route("/settings") do
-            Build.settings(pmodel; kwargs...) |> Stipple.html
+            Build.settings(pmodel) |> Stipple.html
         end
     end
 
@@ -69,7 +69,7 @@ function serve_presentation(PresModel::DataType, gen_content::Function; as_execu
         params = merge!(Dict{Symbol, Any}(kwargs), Genie.params())
         prep_pmodel_and_params!(pmodel, params)
         @info "Time to build HTML:"
-        @time Build.presentation(pmodel, gen_content, params, Assets.get_assets(); kwargs...) |> Stipple.html 
+        @time Build.presentation(pmodel, gen_content, params, Assets.get_assets(); isdev, qview) |> Stipple.html 
     end
 end
 
