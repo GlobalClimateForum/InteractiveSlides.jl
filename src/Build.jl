@@ -1,9 +1,9 @@
 module Build
 using ..Stipple, ..StippleUI
 
-function presentation(pmodel::ReactiveModel, gen_content::Function, params::Dict{Symbol, Any}, assets; qview = "hHh lpR fFf")
-    if pmodel.isprocessing[] && params[:init] #without this check, loading the page multiple time upon initialiation results in an error (e.g. when double-clicking link).
-        return "The presentation had not been fully loaded yet. Please reload this page."
+function presentation(pmodel::ReactiveModel, gen_content::Function, params::Dict{Symbol, Any}, assets; isdev = false, qview = "hHh lpR fFf")
+    if pmodel.isprocessing[] && params[:init] && !isdev #without this check, loading the page multiple time upon initialiation results in an error (e.g. when double-clicking link).
+        return page(pmodel, span("The presentation had not been fully loaded yet. Please reload this page.", class = "errormsg"), assets)
     end
     params[:init] && (pmodel.isprocessing[] = true)
     slides, auxUI = gen_content(pmodel, params)
