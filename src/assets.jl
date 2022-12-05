@@ -54,7 +54,7 @@ function standard_assets(use_Stipple_theme::Bool; local_pkg_assets::Bool)
     add_js("timer"; basedir, subfolder)
     add_js("hotkeys"; basedir, subfolder)
     push!(Stipple.Layout.THEMES, () -> [Stipple.stylesheet("css/theme.css"), ""])
-    Stipple.DEPS[:hljs] = () -> [Stipple.script("setTimeout('hljs.highlightAll()', 1000);")]
+    Stipple.DEPS[:hljs] = () -> [Stipple.script("setTimeout('hljs.highlightAll()', 1000); setTimeout('hljs.highlightAll()', 10000);")]
 end
 
 #Genie assets
