@@ -21,7 +21,7 @@ julia> slide(Slide[], params, h1("Heading"), p("Content"))
 ```
 """
 function slide(slides::Vector{Slide}, params::Dict, HTMLelem...; num_states = 1, class = ""::String, title = ""::String, HTMLattr...)
-    HTMLattr = Dict(HTMLattr)
+    HTMLattr = Dict{Symbol, Any}(HTMLattr)
     if isempty(HTMLattr)
         HTMLattr = Dict{Symbol, Any}() 
     end
