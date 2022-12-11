@@ -38,7 +38,7 @@ end
 
 spacer(padstr) = Html.div(style = "padding:$padstr")
 
-autocell(args...; sizestr = "sm", kwargs...) = Html.div(args...; class = "col-$sizestr-auto"; kwargs...)
+autocell(args...; sizestr = "sm", kwargs...) = Html.div(args...; class = "col-$sizestr-auto", kwargs...)
 
 function simplelist(args...; ordered = false, cellfun = autocell, size = 0, kwargs...)
     if ordered listfun = ol else listfun = ul end
