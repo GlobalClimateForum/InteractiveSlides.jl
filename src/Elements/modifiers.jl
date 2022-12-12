@@ -2,12 +2,12 @@ export hide_on_titleslide, @hide_on_titleslide, @v__bind
 export @state_controlled_class, @appear_on, @hide_on, @show_from_to
 
 """
-    hide_on_titleslide(slides::Vector{Slide}, params::Dict; class = "titleslide")
+    hide_on_titleslide(slides, params::Dict; class = "titleslide")
 
 The html element this is added to will only be visible on slides which are not title slides (useful for header and footer).
 Other kinds of slides are also possible by passing a corresponding "class" kwarg.
 """
-function hide_on_titleslide(slides::Vector{Slide}, params::Dict; class = "titleslide")
+function hide_on_titleslide(slides, params::Dict; class = "titleslide")
     slide_ids = findall(contains.([slide.HTMLattr[:class] for slide in slides], class))
     isempty(slide_ids) ? "" : @showif("!$slide_ids.includes(slide_id$(params[:URLid]))")
 end

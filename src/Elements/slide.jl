@@ -20,12 +20,13 @@ julia> slide(Slide[], params, h1("Heading"), p("Content"))
  Slide("Heading", Dict{Symbol, Any}(:class => "slide "), "<q-page class=\"slide \" v-show='1 == slide_id1 + 0'><h1>Heading</h1><p>Content</p></q-page>", 1)
 ```
 """
-function slide(slides::Vector{Slide}, params::Dict, HTMLelem...; num_states = 1, class = ""::String, title = ""::String, HTMLattr...)
+function slide(slides::Vector{Slide}, params::Dict, HTMLelem...; num_states = 1, class = ""::String, title = ""::String, color = "", HTMLattr...)
     HTMLattr = Dict{Symbol, Any}(HTMLattr)
     if isempty(HTMLattr)
         HTMLattr = Dict{Symbol, Any}() 
     end
-    HTMLattr[:class] = "slide " * class * ifelse(get(params, :show_whole_slide, false), " scroll-always", "")
+    HTMLattr[:class] = "slide " * class * ifelse(get(params, :show_whole_slide, false), " scroll-always", "") * ifelse(color == "", "", " slide-color")
+    HTMLattr[:style] = ifelse(color == "", "", "background-color:$color;") * get(HTMLattr, :style, "")
     slide_id = length(slides) + 1
     HTMLattr[:id] = slide_id
     if isempty(title) 
@@ -36,7 +37,8 @@ function slide(slides::Vector{Slide}, params::Dict, HTMLelem...; num_states = 1,
         end
     end
     shift = get(params, :shift, 0)
-    body = quasar(:page, [HTMLelem...], @showif("$slide_id == slide_id$(params[:URLid]) + $shift"); HTMLattr...)
+    condition = "$slide_id == slide_id$(params[:URLid]) + $shift"
+    body = quasar(:page, [HTMLelem...], @v__bind("[{slide_current: $condition}]", :class), @showif(condition); HTMLattr...)
     push!(slides, Slide(title, HTMLattr, body, num_states))
     return slides
 end
