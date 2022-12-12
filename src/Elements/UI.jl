@@ -1,5 +1,5 @@
 export slide_id, @slide_id, navcontrols, @navcontrols, menu_slides, spacer, autocell, simplelist, two_columns
-export linktoslide, @linktoslide
+export linktoslide, @linktoslide, active_img
 
 """
     navcontrols(params::Dict; icon_menu = "menu", icon_toLeft = "chevron_left", icon_toRight = "navigate_next")
@@ -76,4 +76,17 @@ function two_columns(lcontent, rcontent; sizes = [6,6], lclass = "flex-center co
     row([   cell(lcontent, class = lclass, style = lstyle, size = sizes[1])
             cell(rcontent, class = rclass, style = rstyle, size = sizes[2])
     ]; kwargs...)
+end
+
+function active_img(team, field, options, filenameprefix; path = "img", ext = "png", kwargs...)
+    [img(src = "$path/$filenameprefix$id.$ext", @showif("""$(field[team].str) == "$name" """); kwargs...) for (id, name) in enumerate(options)]
+end
+
+function active_img(team, field1, options1, field2, options2, filenameprefix; path = "img", ext = "png", kwargs...)
+    imgs = []
+    for (id2, name2) in enumerate(options2)
+        append!(imgs, [img(src = "$path/$filenameprefix$id1$id2.$ext", 
+        @showif("""$(field1[team].str) == "$name1" && $(field2[team].str) == "$name2" """); kwargs...) for (id1, name1) in enumerate(options1)])
+    end
+    return imgs
 end
