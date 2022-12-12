@@ -57,28 +57,28 @@ let listeners = Observables.ObserverFunction[] #https://stackoverflow.com/questi
     end
 end
 
-function table_listener(num_teams, table, rows, fields; dict = Dict(false => "", true => "✓"))
+function table_listener(num_teams, table, rows, fields; dict = Dict(false => "", true => "✓"), column = 2)
     typeof(rows) != Vector && (rows = [rows])
     typeof(fields) != Vector && (fields = [fields])
     for t_id in 1:num_teams
         for (id, field) in enumerate(fields)
             new_listener(field[t_id]) do choice
                 output = get(dict, choice, string(choice))
-                table.ref.data[!, t_id+1][rows[id]] = output
+                table.ref.data[!, t_id+column-1][rows[id]] = output
                 notify(table.ref)
             end
         end
     end
 end
 
-function table_listener(num_teams, table, rows, field, available_choices; notchosen = "", chosen = "✓")
+function table_listener(num_teams, table, rows, field, available_choices; notchosen = "", chosen = "✓", column = 2)
     for t_id in 1:num_teams
         new_listener(field[t_id]) do choices
             choices_bool = falses(length(available_choices))
             for choice in choices
                 choices_bool = choices_bool .|| contains.(available_choices, choice)
             end
-            table.ref.data[!, t_id+1][rows] = [choice ? chosen : notchosen for choice in choices_bool]
+            table.ref.data[!, t_id+column-1][rows] = [choice ? chosen : notchosen for choice in choices_bool]
             notify(table.ref)
         end
     end
