@@ -30,7 +30,7 @@ function menu_slides(slides::Vector{Slide}, params::Dict, item_fun; side = "left
     drawer(v__model = drawerstr, listHTML; side)
 end
 
-slide_id(params::Dict; kwargs...) = span("", @text("slide_id$(params[:URLid]) + $(get(params, :shift, 0))"), class = "slide_id", kwargs...)
+slide_id(params::Dict; kwargs...) = span("", @text("slide_id$(params[:URLid]) + $(get(params, :shift, 0))"), class = "slide_id"; kwargs...)
 
 macro slide_id(exprs...)
     esc(:(slide_id(params, $(eqtokw!(exprs)...))))
@@ -72,8 +72,8 @@ register_normal_element("q__footer", context = @__MODULE__)
 
 column(args...; class = "", kwargs...) = Html.div(args...; class = class * " column", kwargs...)
 
-function two_columns(lcontent, rcontent; sizes = [6,6], class = "", style = "", lclass = "flex-center column", rclass = lclass, lstyle = "", rstyle = "")
+function two_columns(lcontent, rcontent; sizes = [6,6], lclass = "flex-center column", rclass = lclass, lstyle = "", rstyle = "", kwargs...)
     row([   cell(lcontent, class = lclass, style = lstyle, size = sizes[1])
             cell(rcontent, class = rclass, style = rstyle, size = sizes[2])
-    ], class, style)
+    ]; kwargs...)
 end
