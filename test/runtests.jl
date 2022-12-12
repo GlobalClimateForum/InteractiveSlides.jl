@@ -7,6 +7,7 @@ module TestBasics
     end
 
     function gen_content(pmodel::PresentationModel, params::Dict)
+        return [], []
     end
 
     serve_presentation(PresentationModel, gen_content)
