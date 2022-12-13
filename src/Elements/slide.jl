@@ -22,9 +22,6 @@ julia> slide(Slide[], params, h1("Heading"), p("Content"))
 """
 function slide(slides::Vector{Slide}, params::Dict, HTMLelem...; num_states = 1, class = ""::String, title = ""::String, color = "", HTMLattr...)
     HTMLattr = Dict{Symbol, Any}(HTMLattr)
-    if isempty(HTMLattr)
-        HTMLattr = Dict{Symbol, Any}() 
-    end
     HTMLattr[:class] = "slide " * class * ifelse(get(params, :show_whole_slide, false), " scroll-always", "") * ifelse(color == "", "", " slide-color")
     HTMLattr[:style] = ifelse(color == "", "", "background-color:$color;") * get(HTMLattr, :style, "")
     slide_id = length(slides) + 1
