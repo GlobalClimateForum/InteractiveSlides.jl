@@ -57,14 +57,16 @@ let listeners = Observables.ObserverFunction[] #https://stackoverflow.com/questi
     end
 end
 
-function table_listener(num_teams, table, rows, fields; dict = Dict(false => "", true => "✓"), column = 2)
-    typeof(rows) != Vector && (rows = [rows])
-    typeof(fields) != Vector && (fields = [fields])
+function table_listener(num_teams, table, rows, field; dict = Dict(false => "", true => "✓"), column = 2)
     for t_id in 1:num_teams
-        for (id, field) in enumerate(fields)
-            new_listener(field[t_id]) do choice
+        new_listener(field[t_id]) do choice
+            if typeof(choice) <: Vector
+                output = [get(dict, c, string(c)) for c in choice]
+                table.ref.data[!, t_id+column-1][rows] .= output
+                notify(table.ref)
+            else
                 output = get(dict, choice, string(choice))
-                table.ref.data[!, t_id+column-1][rows[id]] = output
+                table.ref.data[!, t_id+column-1][rows] = output
                 notify(table.ref)
             end
         end
