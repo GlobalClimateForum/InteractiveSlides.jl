@@ -48,6 +48,25 @@ function Stipple.js_watch(m::T)::String where {T<:Stipple.ReactiveModel}
 end))
 end
 
+function set_methods(max_num_teams)
+    eval(
+    :(
+    function Stipple.js_methods(m::T)::String where {T<:Stipple.ReactiveModel}
+        str = ""
+        for t_id in 0:$max_num_teams
+        str = str * """
+        next$t_id: function (val) {
+            this.slide_state$t_id >= this.num_states[this.slide_id$t_id-1] ? this.slide_id$t_id < this.num_slides ? (this.slide_id$t_id++, this.slide_state$t_id = 1) : null : this.slide_state$t_id++
+        },
+        previous$t_id: function (val) {
+            this.slide_state$t_id == 1 ? this.slide_id$t_id > 1 ? (this.slide_id$t_id--, this.slide_state$t_id = this.num_states[slide_id$t_id-1]) : null : this.slide_state$t_id--
+        }$(t_id == $max_num_teams ? "" : ",")
+        """
+        end
+        return str
+    end))
+end
+
 function standard_assets(max_num_teams, use_Stipple_theme::Bool; local_pkg_assets::Bool)
     !use_Stipple_theme && Genie.Router.delete!(Symbol("get_stipple.jl_master_assets_css_stipplecore.css")) 
     basedir = local_pkg_assets ? pwd() : @__DIR__
@@ -71,6 +90,7 @@ function standard_assets(max_num_teams, use_Stipple_theme::Bool; local_pkg_asset
     add_js("hotkeys"; basedir, subfolder)
     add_js("onSwitch"; basedir, subfolder)
     set_watchers(max_num_teams)
+    set_methods(max_num_teams)
     push!(Stipple.Layout.THEMES, () -> [Stipple.stylesheet("css/theme.css"), ""])
     Stipple.DEPS[:hljs] = () -> [Stipple.script("setTimeout('hljs.highlightAll()', 1000); setTimeout('hljs.highlightAll()', 10000);")]
 end

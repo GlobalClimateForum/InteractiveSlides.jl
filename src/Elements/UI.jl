@@ -10,8 +10,8 @@ function navcontrols(params::Dict; icon_menu = "menu", icon_toLeft = "chevron_le
     URLid = params[:URLid]
     drawerstr = get(params, :drawerstr, "drawer$URLid")
     [btn("",icon=icon_menu, @click("$drawerstr = ! $drawerstr")),
-    btn("",icon=icon_toLeft, @click("slide_state$URLid == 1 ? slide_id$URLid > 1 ? (slide_id$URLid--, slide_state$URLid = num_states[slide_id$URLid-1]) : null : slide_state$URLid--")),
-    btn("",icon=icon_toRight, @click("slide_state$URLid >= num_states[slide_id$URLid-1] ? slide_id$URLid < num_slides ? (slide_id$URLid++, slide_state$URLid = 1) : null : slide_state$URLid++"))]
+    btn("",icon=icon_toLeft, @click("previous$URLid()")),
+    btn("",icon=icon_toRight, @click("next$URLid()"))]
     # see hotkeys.js for similar js logic (anyone has any idea for how to reduce that redundancy?)
 end
 
