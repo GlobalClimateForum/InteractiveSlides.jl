@@ -32,12 +32,12 @@ function get_assets()
     return out
 end
 
-function set_onSwitch(max_num_teams)
+function set_watchers(max_num_teams)
 eval(
 :(
 function Stipple.js_watch(m::T)::String where {T<:Stipple.ReactiveModel}
     str = ""
-    for t_id in 1:$max_num_teams
+    for t_id in 0:$max_num_teams
     str = str * """
         slide_id$t_id: function (val) {
         setTimeout('onSwitch()', 50); 
@@ -70,7 +70,7 @@ function standard_assets(max_num_teams, use_Stipple_theme::Bool; local_pkg_asset
     add_js("timer"; basedir, subfolder)
     add_js("hotkeys"; basedir, subfolder)
     add_js("onSwitch"; basedir, subfolder)
-    set_onSwitch(max_num_teams)
+    set_watchers(max_num_teams)
     push!(Stipple.Layout.THEMES, () -> [Stipple.stylesheet("css/theme.css"), ""])
     Stipple.DEPS[:hljs] = () -> [Stipple.script("setTimeout('hljs.highlightAll()', 1000); setTimeout('hljs.highlightAll()', 10000);")]
 end
