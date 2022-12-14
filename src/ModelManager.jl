@@ -1,7 +1,7 @@
 module ModelManager
 using ..Stipple
 import ..to_fieldname, ..eqtokw!
-export use_field!, use_fields!, new_listener, table_listener, @table_listener
+export use_field!, use_fields!, new_listener, @new_listener, table_listener, @table_listener
 export @use_field!, @use_fields!, getslidefield, @getslidefield, getstatefield, @getstatefield #convenience functionss
 
 mutable struct ManagedField
@@ -43,18 +43,32 @@ let listeners = Observables.ObserverFunction[] #https://stackoverflow.com/questi
     global new_listener
     global delete_listeners
 
-    function new_listener(fun::Function, field::Reactive)
-        listener = on(field, weak = true) do val
-            fun(val)
+    function new_listener(fun::Function, field::Reactive, params::Dict)
+        if params[:init]
+            listener = on(field, weak = true) do val
+                fun(val)
+            end
+            notify(field) #to immediately initialize the value
+            push!(listeners, listener)
         end
-        notify(field) #to immediately initialize the value
-        push!(listeners, listener)
     end
 
     function delete_listeners()
         off.(listeners)
         empty!(listeners)
     end
+end
+
+"""
+    new_listener
+
+Takes a function and a field (either a ManagedField or a direct reference to a field). 
+Sets up a listener accordingly (see https://genieframework.com/docs/stipple/v0.25/API/stipple.html#Observables.on).
+In order to be able to delete that listener in case when resetting the presentation (via delete_listeners), 
+`new_listener` also stores a reference to the listener in a list.
+"""
+function new_listener(fun::Function, field::ManagedField, params::Dict)
+    new_listener(fun, field.ref, params)
 end
 
 """
@@ -73,12 +87,12 @@ julia> row_names = OrderedDict(:RowNames => ["I1", "I2", "I3", "I4"], :Vals => [
 julia> df = DataFrame(;merge(row_names,OrderedDict((Symbol("Team \$t_id")=>["", "", "", "", ""] for t_id = team_ids)...))...)
 julia> choices_table = @use_field!("DataTable", init_val = DataTable(df))
 julia> investment_choices = @use_fields!("Vector", init_val = [false, false, false, false])
-julia> table_listener(2, choices_table, 1:4, investment_choices)
+julia> table_listener(params, choices_table, 1:4, investment_choices)
 ```
 """
-function table_listener(num_teams, table, rows, field; dict = Dict(false => "", true => "✓"), column = 2)
-    for t_id in 1:num_teams
-        new_listener(field[t_id]) do choice
+function table_listener(params::Dict, table, rows, field; dict = Dict(false => "", true => "✓"), column = 2)
+    for t_id in 1:params[:num_teams]
+        new_listener(field[t_id], params) do choice
             if typeof(choice) <: Vector
                 output = [get(dict, c, string(c)) for c in choice]
                 table.ref.data[!, t_id+column-1][rows] .= output
@@ -103,12 +117,12 @@ This method is useful in case your field value is a vector of values which is a 
 julia> choices_table = see other method
 julia> available_invest_choices = ["A", "B", "C", "D"]
 julia> investment_choices = @use_fields!("Vector", init_val = [])
-julia> table_listener(choices_table, 1:4, investment_choices, available_invest_choices)
+julia> table_listener(params, choices_table, 1:4, investment_choices, available_invest_choices)
 ```
 """
-function table_listener(num_teams, table, rows, field, available_choices; notchosen = "", chosen = "✓", column = 2)
-    for t_id in 1:num_teams
-        new_listener(field[t_id]) do choices
+function table_listener(params::Dict, table, rows, field, available_choices; notchosen = "", chosen = "✓", column = 2)
+    for t_id in 1:params[:num_teams]
+        new_listener(field[t_id], params) do choices
             choices_bool = falses(length(available_choices))
             for choice in choices
                 choices_bool = choices_bool .|| contains.(available_choices, choice)
@@ -117,18 +131,6 @@ function table_listener(num_teams, table, rows, field, available_choices; notcho
             notify(table.ref)
         end
     end
-end
-
-"""
-    new_listener
-
-Takes a function and a field (either a ManagedField or a direct reference to a field). 
-Sets up a listener accordingly (see https://genieframework.com/docs/stipple/v0.25/API/stipple.html#Observables.on).
-In order to be able to delete that listener in case when resetting the presentation (via delete_listeners), 
-`new_listener` also stores a reference to the listener in a list.
-"""
-function new_listener(fun::Function, field::ManagedField)
-    new_listener(fun, field.ref)
 end
 
 ####################### CONVENIENCE FUNCTIONS ####################
@@ -147,12 +149,21 @@ macro use_fields!(exprs...)
 end
 
 """
+    @new_listener(fct, field)
+
+Convenience macro which calls `new_listener` (see `?new_listener`). See ?@slide for more info on convenience macros.
+"""
+macro new_listener(fct, field)
+    esc(:(new_listener($fct, $field, params)))
+end
+
+"""
     @table_listener(exprs...)
 
 Convenience macro which calls `table_listener` (see `?table_listener`). See ?@slide for more info on convenience macros.
 """
 macro table_listener(exprs...)
-    esc(:(table_listener(pmodel.num_teams[], $(eqtokw!(exprs)...))))
+    esc(:(table_listener(params, $(eqtokw!(exprs)...))))
 end
 
 function getslidefield(pmodel::ReactiveModel, team_id::Int)
