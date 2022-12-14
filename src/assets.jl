@@ -33,19 +33,19 @@ function get_assets()
 end
 
 function set_watchers(max_num_teams)
-eval(
-:(
-function Stipple.js_watch(m::T)::String where {T<:Stipple.ReactiveModel}
-    str = ""
-    for t_id in 0:$max_num_teams
-    str = str * """
-        slide_id$t_id: function (val) {
-        setTimeout('onSwitch()', 50); 
-        },
-    """
-    end
-    return str
-end))
+    eval(
+    :(
+    function Stipple.js_watch(m::T)::String where {T<:Stipple.ReactiveModel}
+        str = ""
+        for t_id in 0:$max_num_teams
+        str = str * """
+            slide_id$t_id: function (val) {
+            setTimeout('onSwitch()', 50); 
+            },
+        """
+        end
+        return str
+    end))
 end
 
 function set_methods(max_num_teams)
@@ -111,4 +111,5 @@ function Genie.Assets.webthreads(channel::String = Genie.config.webthreads_defau
         Genie.Assets.embedded(Genie.Assets.asset_file(; cwd = cwd_genie(), file="pollymer.js")),
         Genie.Assets.embedded(Genie.Assets.asset_file(; cwd = cwd_genie(), file="webthreads.js")))
 end
+
 end

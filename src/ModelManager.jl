@@ -57,6 +57,25 @@ let listeners = Observables.ObserverFunction[] #https://stackoverflow.com/questi
     end
 end
 
+"""
+    table_listener(num_teams, table, rows, field; dict = Dict(false => "", true => "✓"), column = 2)
+
+This function simplifies setting up table rows whose data is dynamically updated depending on the choices of each team.
+Depending what's in the dict, the table's cells (given the desired rows/column) will show outputs depending on what is the field's value 
+(e.g., if the field has the value true, the standard is to show a checkmark ✓). If a value isn't found in the dict, the stringified field value is shown.
+This function also works for fields which are vectors (in which case you'll need to provide several rows according to the length of the vector).
+
+For StippleUI tables see here: https://www.genieframework.com/docs/stippleui/api/tables.html
+
+### Example
+```julia
+julia> row_names = OrderedDict(:RowNames => ["I1", "I2", "I3", "I4"], :Vals => ["I1", "I2", "I3", "I4"])
+julia> df = DataFrame(;merge(row_names,OrderedDict((Symbol("Team \$t_id")=>["", "", "", "", ""] for t_id = team_ids)...))...)
+julia> choices_table = @use_field!("DataTable", init_val = DataTable(df))
+julia> investment_choices = @use_fields!("Vector", init_val = [false, false, false, false])
+julia> table_listener(2, choices_table, 1:4, investment_choices)
+```
+"""
 function table_listener(num_teams, table, rows, field; dict = Dict(false => "", true => "✓"), column = 2)
     for t_id in 1:num_teams
         new_listener(field[t_id]) do choice
@@ -73,6 +92,20 @@ function table_listener(num_teams, table, rows, field; dict = Dict(false => "", 
     end
 end
 
+"""
+    table_listener(num_teams, table, rows, field, available_choices; notchosen = "", chosen = "✓", column = 2)
+
+This method is useful in case your field value is a vector of values which is a subset of a given set of available choices 
+(which might e.g. be the case if you are using the StippleUI select element).
+
+### Example
+```julia
+julia> choices_table = see other method
+julia> available_invest_choices = ["A", "B", "C", "D"]
+julia> investment_choices = @use_fields!("Vector", init_val = [])
+julia> table_listener(choices_table, 1:4, investment_choices, available_invest_choices)
+```
+"""
 function table_listener(num_teams, table, rows, field, available_choices; notchosen = "", chosen = "✓", column = 2)
     for t_id in 1:num_teams
         new_listener(field[t_id]) do choices
@@ -113,6 +146,11 @@ macro use_fields!(exprs...)
     esc(:(use_fields!(pmodel, params, $(eqtokw!(exprs)...))))
 end
 
+"""
+    @table_listener(exprs...)
+
+Convenience macro which calls `table_listener` (see `?table_listener`). See ?@slide for more info on convenience macros.
+"""
 macro table_listener(exprs...)
     esc(:(table_listener(pmodel.num_teams[], $(eqtokw!(exprs)...))))
 end
