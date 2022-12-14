@@ -1,9 +1,10 @@
 name = "InteractiveSlides"
 uuid = "e0adfb67-6a19-4170-8314-b8ef321cb235"
 authors = ["Global Climate Forum, Jochen Krattenmacher"]
-version = "0.34"
+version = "0.34.1"
 
 [deps]
+CSV = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
 Genie = "c43c736e-a2d1-11e8-161f-af95117fbd1e"
 Mixers = "2a8e4939-dab8-5edc-8f64-72a8776f13de"
 Reexport = "189a3867-3050-52da-a836-e630ba90ab69"
@@ -12,12 +13,13 @@ StipplePlotly = "ec984513-233d-481d-95b0-a3b58b97af2b"
 StippleUI = "a3c5d34a-b254-4859-a8fa-b86abb7e84a3"
 
 [compat]
+CSV = "0.10"
 Genie = "5"
 Mixers = "0.1"
 Reexport = "1.2"
 Stipple = "0.25"
-StippleUI = "0.20, 0.21"
 StipplePlotly = "0.13"
+StippleUI = "0.20, 0.21"
 julia = "^1.7.3"
 
 [extras]
