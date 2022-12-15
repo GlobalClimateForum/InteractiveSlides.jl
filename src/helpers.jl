@@ -19,8 +19,8 @@ function save(pmodel, params, value, filename = string(typeof(value)); dirname =
     end
 end
 
-function save(pmodel, params, field::ModelManager.ManagedField, args...; kwargs...)
-    save(pmodel, params, field.ref[], args...; kwargs...)
+function save(pmodel, params, field::ModelManager.ManagedField, filename = field.str; kwargs...)
+    save(pmodel, params, field.ref[], filename; kwargs...)
 end
 
 """
