@@ -17,10 +17,10 @@ Vue.directive('hotkeys', {
       if (!inputs.indexOf(activeElement.tagName.toLowerCase()) == -1 || !activeElement.hasAttribute("contenteditable")) { //do nothing if user is writing something
       switch (e.key) {
       case "ArrowRight":
-        eval('pmodel.next' + URLid + '();');
+        next(URLid);
         break;
       case "ArrowLeft":
-        eval('pmodel.previous' + URLid + '();');
+        previous(URLid);
         break;
       case "m":
         if (is_shift) {

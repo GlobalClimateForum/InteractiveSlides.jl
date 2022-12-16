@@ -52,18 +52,14 @@ function set_methods(max_num_teams)
     eval(
     :(
     function Stipple.js_methods(m::T)::String where {T<:Stipple.ReactiveModel}
-        str = ""
-        for t_id in 0:$max_num_teams
-        str = str * """
-        next$t_id: function (val) {
-            this.slide_state$t_id >= this.num_states[this.slide_id$t_id-1] ? this.slide_id$t_id < this.num_slides ? (this.slide_id$t_id++, this.slide_state$t_id = 1) : null : this.slide_state$t_id++
-        },
-        previous$t_id: function (val) {
-            this.slide_state$t_id == 1 ? this.slide_id$t_id > 1 ? (this.slide_id$t_id--, this.slide_state$t_id = this.num_states[slide_id$t_id-1]) : null : this.slide_state$t_id--
-        }$(t_id == $max_num_teams ? "" : ",")
         """
-        end
-        return str
+        next: function (URLid) {
+            next(URLid)
+        },
+        previous: function (URLid) {
+            previous(URLid)
+        }
+        """
     end))
 end
 
