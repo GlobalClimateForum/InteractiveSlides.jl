@@ -90,16 +90,16 @@ julia> investment_choices = @use_fields!("Vector", init_val = [false, false, fal
 julia> table_listener(params, choices_table, 1:4, investment_choices)
 ```
 """
-function table_listener(params::Dict, table, rows, field; dict = Dict(false => "", true => "✓"), column = 2)
-    for t_id in 1:params[:num_teams]
+function table_listener(params::Dict, table, rows, field; dict = Dict(false => "", true => "✓"), column = 2, team_ids = 1:params[:num_teams])
+    for (id, t_id) in enumerate(team_ids)
         new_listener(field[t_id], params) do choice
             if typeof(choice) <: Vector
                 output = [get(dict, c, string(c)) for c in choice]
-                table.ref.data[!, t_id+column-1][rows] .= output
+                table.ref.data[!, id+column-1][rows] .= output
                 notify(table.ref)
             else
                 output = get(dict, choice, string(choice))
-                table.ref.data[!, t_id+column-1][rows] = output
+                table.ref.data[!, id+column-1][rows] = output
                 notify(table.ref)
             end
         end
@@ -120,14 +120,14 @@ julia> investment_choices = @use_fields!("Vector", init_val = [])
 julia> table_listener(params, choices_table, 1:4, investment_choices, available_invest_choices)
 ```
 """
-function table_listener(params::Dict, table, rows, field, available_choices; notchosen = "", chosen = "✓", column = 2)
-    for t_id in 1:params[:num_teams]
+function table_listener(params::Dict, table, rows, field, available_choices; notchosen = "", chosen = "✓", column = 2, team_ids = 1:params[:num_teams])
+    for (id, t_id) in enumerate(team_ids)
         new_listener(field[t_id], params) do choices
             choices_bool = falses(length(available_choices))
             for choice in choices
                 choices_bool = choices_bool .|| contains.(available_choices, choice)
             end
-            table.ref.data[!, t_id+column-1][rows] = [choice ? chosen : notchosen for choice in choices_bool]
+            table.ref.data[!, id+column-1][rows] = [choice ? chosen : notchosen for choice in choices_bool]
             notify(table.ref)
         end
     end
