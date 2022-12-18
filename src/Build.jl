@@ -2,6 +2,7 @@ module Build
 using ..Stipple, ..StippleUI
 
 function presentation(pmodel::ReactiveModel, gen_content::Function, params::Dict{Symbol, Any}, assets; isdev, qview)
+    params[:URLid] > pmodel.num_teams[] && return "Only $(pmodel.num_teams[]) teams can participate as per current settings."
     if pmodel.isprocessing[] && params[:init] && !isdev #without this check, loading the page multiple time upon initialiation results in an error (e.g. when double-clicking link).
         return page(pmodel, span("The presentation had not been fully loaded yet. Please reload this page.", class = "errormsg"), assets)
     end

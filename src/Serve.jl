@@ -3,7 +3,6 @@ import ..Stipple, ..Genie, ..StippleUI, ..StipplePlotly, ..ModelInit, ..ModelMan
 export serve_presentation
 
 function prep_pmodel_and_params!(pmodel, params)
-    params[:URLid] > pmodel.num_teams[] && return "Only $(pmodel.num_teams[]) teams can participate as per current settings."
     params[:show_whole_slide] = params[:URLid] == 0 || haskey(params, :shift)
     params[:team_id] = max(params[:URLid], 1) #the controller (URLid = 0) basically "plays for" team 1
     params[:num_teams] = pmodel.num_teams[] #useful to decrease number of needed arguments for some functions
