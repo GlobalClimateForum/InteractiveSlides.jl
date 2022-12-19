@@ -12,7 +12,6 @@ function navcontrols(params::Dict; icon_menu = "menu", icon_toLeft = "chevron_le
     [btn("",icon=icon_menu, @click("$drawerstr = ! $drawerstr")),
     btn("",icon=icon_toLeft, @click("previous($URLid)")),
     btn("",icon=icon_toRight, @click("next($URLid)"))]
-    # see hotkeys.js for similar js logic (anyone has any idea for how to reduce that redundancy?)
 end
 
 macro navcontrols(exprs...)

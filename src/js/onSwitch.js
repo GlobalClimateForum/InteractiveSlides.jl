@@ -14,9 +14,25 @@ function onSwitch() {
   
 
 function next(URLid) {
-  pmodel[`slide_state${URLid}`] >= pmodel.num_states[pmodel[`slide_id${URLid}`]-1] ? pmodel[`slide_id${URLid}`] < pmodel.num_slides ? (pmodel[`slide_id${URLid}`]++, pmodel[`slide_state${URLid}`] = 1) : null : pmodel[`slide_state${URLid}`]++
+  if (pmodel[`slide_state${URLid}`] >= pmodel.num_states[pmodel[`slide_id${URLid}`]-1]) {
+    if (pmodel[`slide_id${URLid}`] < pmodel.num_slides) {
+      pmodel[`slide_id${URLid}`]++;
+      pmodel[`slide_state${URLid}`] = 1;
+    }
+  }
+  else {
+    pmodel[`slide_state${URLid}`]++;
+  }
 }
 
 function previous(URLid) {
-  pmodel[`slide_state${URLid}`] == 1 ? pmodel[`slide_id${URLid}`] > 1 ? (pmodel[`slide_id${URLid}`]--, pmodel[`slide_state${URLid}`] = pmodel.num_states[pmodel[`slide_id${URLid}`]-1]) : null : pmodel[`slide_state${URLid}`]--
+  if (pmodel[`slide_state${URLid}`] == 1) {
+    if (pmodel[`slide_id${URLid}`] > 1) {
+      pmodel[`slide_id${URLid}`]--;
+      pmodel[`slide_state${URLid}`] = pmodel.num_states[pmodel[`slide_id${URLid}`]-1];
+    }
+  }
+  else {
+    pmodel[`slide_state${URLid}`]--;
+  }
 }
