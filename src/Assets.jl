@@ -37,10 +37,10 @@ function set_watchers(max_num_teams)
     :(
     function Stipple.js_watch(m::T)::String where {T<:Stipple.ReactiveModel}
         str = ""
-        for t_id in 0:$max_num_teams
+        for URLid in 0:$max_num_teams
         str = str * """
-            slide_id$t_id: function (val) {
-            setTimeout('onSwitch()', 50); 
+            slide_id$URLid: function (newval, oldval) {
+            setTimeout(onSwitch.bind(this, newval, oldval, $URLid), 30); 
             },
         """
         end
