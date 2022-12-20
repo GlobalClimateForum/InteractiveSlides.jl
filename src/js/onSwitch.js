@@ -8,8 +8,8 @@ function onSwitch(newval, oldval, URLid) {
     }
     if (Math.abs(newval - oldval) == 1)
     {
-      current_slide = document.getElementsByClassName('slide_current')
-      if (!current_slide[0].hasChildNodes()) {
+      skip_slide = document.getElementsByClassName('slide_current skip-slide')
+      if (skip_slide.length > 0) {
         pmodel[`slide_id${URLid}`] = pmodel[`slide_id${URLid}`] + newval - oldval
       }
     }
