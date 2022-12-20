@@ -35,7 +35,7 @@ function slide(slides::Vector{Slide}, params::Dict, HTMLelem...; num_states = 1,
     end
     shift = get(params, :shift, 0)
     condition = "$slide_id == slide_id$(params[:URLid]) + $shift"
-    body = quasar(:page, [HTMLelem...], @v__bind("[{slide_current: $condition}]", :class), @showif(condition); HTMLattr...)
+    body = quasar(:page, ["", HTMLelem...], @v__bind("[{slide_current: $condition}]", :class), @showif(condition); HTMLattr...)
     push!(slides, Slide(title, HTMLattr, body, num_states))
     return slides
 end
