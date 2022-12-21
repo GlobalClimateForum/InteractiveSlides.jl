@@ -29,7 +29,7 @@ function menu_slides(slides::Vector{Slide}, params::Dict, item_fun; side = "left
     drawer(v__model = drawerstr, listHTML; side)
 end
 
-slide_id(params::Dict; kwargs...) = span("", @text("slide_id$(params[:URLid]) + $(get(params, :shift, 0))"), class = "slide_id"; kwargs...)
+slide_id(params::Dict; offset = 0, kwargs...) = span("", @text("slide_id$(params[:URLid]) + $(get(params, :shift, 0)+offset)"), class = "slide_id"; kwargs...)
 
 macro slide_id(exprs...)
     esc(:(slide_id(params, $(eqtokw!(exprs)...))))
