@@ -11,7 +11,7 @@ function presentation(pmodel::ReactiveModel, gen_content::Function, params::Dict
     pmodel.isprocessing[] = false
     pmodel.num_slides[] = length(slides)
     pmodel.num_states[] = getproperty.(slides, :num_states)
-    page(pmodel,
+    page(pmodel, prepend = style("[v-cloak] {display: none}"), v__cloak = true,
     [
         StippleUI.Layouts.layout(view = qview, [ #see https://v1.quasar.dev/layout/layout#understanding-the-view-prop
             auxUI,
@@ -20,7 +20,7 @@ function presentation(pmodel::ReactiveModel, gen_content::Function, params::Dict
                 getproperty.(slides, :body)
             )
         ], 
-        v__cloak = true), #https://v2.vuejs.org/v2/api/#v-cloak
+        ), #https://v2.vuejs.org/v2/api/#v-cloak
     ], assets,
     )
 end
