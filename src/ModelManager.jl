@@ -19,13 +19,13 @@ Then, it returns a reference to that field as well as the corresponding symbol i
 If not params[:init] (i.e., if the presentation has already been initialized), 
 the function simply looks up the counter, returns the corresponding ManagedField (without modyfing anything), and increases the counter.
 """
-function use_field!(pmodel::ReactiveModel, params::Dict, type::String; init_val = Nothing)
-    name = to_fieldname(type; id = get!(pmodel.counters, type, 1))
+function use_field!(pmodel::ReactiveModel, params::Dict, counters::Dict, type::String; init_val = Nothing)
+    name = to_fieldname(type; id = get!(counters, type, 1))
     name_sym = Symbol(name)
     if init_val != Nothing && params[:init]
         getfield(pmodel, name_sym).o.val = init_val
     end
-    pmodel.counters[type] += 1
+    counters[type] += 1
     return ManagedField(name, name_sym, getfield(pmodel, name_sym))::ManagedField
 end
 
@@ -35,8 +35,8 @@ end
 ONLY USEFUL IF YOU ARE PRESENTING TO MORE THAN ONE TEAM (otherwise you can safely ignore this functionality).
 "Manages" multiple ManagedField (returns a list of ManagedField, one ManageField per team)
 """
-function use_fields!(pmodel::ReactiveModel, params::Dict, type::String; init_val = Nothing)
-    [use_field!(pmodel, params, type; init_val) for _ in 1:pmodel.num_teams[]]
+function use_fields!(pmodel::ReactiveModel, params::Dict, counters::Dict, type::String; init_val = Nothing)
+    [use_field!(pmodel, params, counters, type; init_val) for _ in 1:pmodel.num_teams[]]
 end
 
 let listeners = Observables.ObserverFunction[] #https://stackoverflow.com/questions/24541723/does-julia-support-static-variables-with-function-scope
@@ -141,11 +141,21 @@ end
 Convenience macro which calls `use_field!` (see `?use_field!`). See ?@slide for more info on convenience macros.
 """
 macro use_field!(exprs...)
-    esc(:(use_field!(pmodel, params, $(eqtokw!(exprs)...))))
+    esc(
+        quote 
+            !@isdefined(counters) && (counters = Dict{String, Int}())
+            use_field!(pmodel, params, counters, $(eqtokw!(exprs)...))
+        end
+        )
 end
 
 macro use_fields!(exprs...)
-    esc(:(use_fields!(pmodel, params, $(eqtokw!(exprs)...))))
+    esc(
+        quote 
+            !@isdefined(counters) && (counters = Dict{String, Int}())
+            use_fields!(pmodel, params, counters, $(eqtokw!(exprs)...))
+        end
+        )
 end
 
 """

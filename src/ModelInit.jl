@@ -20,8 +20,7 @@ end
 
 Mixers.@mix Stipple.@with_kw struct presentation!
     Stipple.@reactors #This line is from the definition of reactive! (Stipple.jl)
-    counters::Dict{String, Int} = Dict()
-    reset_required::R{Bool} = false
+    reset_required::R{Bool} = true
     timer::R{Int} = 0
     timer_isactive::R{Bool} = false
     num_teams::R{Int} = 1

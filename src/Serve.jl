@@ -12,11 +12,10 @@ function prep_pmodel_and_params!(pmodel, params)
         pmodel.reset_required[] = false
         pmodel.timer_isactive[] = false
     else
-        params[:init] = isempty(pmodel.counters) ? true : false #only initialize fields/listeners if they have not already been initialized
+        params[:init] = false
     end
     params[:drawerstr] = haskey(params, :shift) ? "drawer_shift$(params[:URLid])" : "drawer$(params[:URLid])"
     params[:shift] = try parse(Int, get(params, :shift, "0")); catch; return "Shift parameter needs to be an integer."; end
-    empty!(pmodel.counters)
 end
 
 """
