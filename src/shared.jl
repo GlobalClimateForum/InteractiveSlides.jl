@@ -2,7 +2,7 @@ const MAX_NUM_TEAMS = 6::Int64
 const AS_EXECUTABLE  = Ref{Bool}(false)
 
 function to_fieldname(typename; id::Union{Int, String} = "")
-    lowercase(string(typename, id))
+    replace(lowercase(string(typename, id)), "{" => "", "}" => "")
 end
 
 function eqtokw!(exprs)
