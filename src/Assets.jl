@@ -85,13 +85,15 @@ function standard_assets(max_num_teams, use_Stipple_theme::Bool; local_pkg_asset
     add_js("timer"; basedir, subfolder)
     add_js("hotkeys"; basedir, subfolder)
     add_js("onSwitch"; basedir, subfolder)
-    add_js("InteractiveSlides"; basedir, subfolder = "style", ext = ".css")
     set_watchers(max_num_teams)
     set_methods(max_num_teams)
     push!(Stipple.Layout.THEMES, () -> [Stipple.stylesheet("css/theme.css"), ""])
     Stipple.DEPS[:hljs] = () -> [Stipple.script("setTimeout('hljs.highlightAll()', 1000); setTimeout('hljs.highlightAll()', 10000);")]
     Genie.Router.route("/css/MaterialIcons-Regular.ttf") do 
         Genie.Router.serve_static_file(joinpath(@__DIR__, "style", "MaterialIcons-Regular.ttf"), root = "/")
+    end
+    Genie.Router.route("/css/InteractiveSlides.css") do 
+        Genie.Router.serve_static_file(joinpath(@__DIR__, "style", "InteractiveSlides.css"), root = "/")
     end
 end
 
