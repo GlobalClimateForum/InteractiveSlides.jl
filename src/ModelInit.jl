@@ -30,7 +30,7 @@ Mixers.@mix Stipple.@with_kw struct presentation!
     slide_id0::R{Int} = 1
     slide_state0::R{Int} = 1
     drawer0::R{Bool} = false
-    @addfields("slide_id", ::Int, 1)
+    @addfields("slide_id", ::Int, 0)
     @addfields("slide_state", ::Int, 1)
     @addfields("drawer", ::Bool, false)
     @addfields("drawer_shift", ::Bool, false)

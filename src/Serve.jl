@@ -6,6 +6,9 @@ function prep_pmodel_and_params!(pmodel, params)
     params[:show_whole_slide] = params[:URLid] == 0 || haskey(params, :shift)
     params[:team_id] = max(params[:URLid], 1) #the controller (URLid = 0) basically "plays for" team 1
     params[:num_teams] = pmodel.num_teams[] #useful to decrease number of needed arguments for some functions
+    slidefield = ModelManager.getslidefield(pmodel, params[:URLid])
+    slidefield[] = max(1, slidefield[]) # necessary because the model is initialized with slide_idx = 0
+    Stipple.notify(slidefield)          # (otherwise slide 1 would be shown briefly upon loading, no matter the actual slide one is at)
     if get(params, :reset, "0") != "0" || pmodel.reset_required[]
         params[:init] = true
         ModelManager.delete_listeners()
