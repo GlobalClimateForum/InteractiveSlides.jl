@@ -2,25 +2,16 @@ export slide_id, @slide_id, navcontrols, @navcontrols, menu_slides, spacer, auto
 export linktoslide, @linktoslide, active_img
 
 """
-    navcontrols(params::Dict; icon_menu = "menu", icon_toLeft = "chevron_left", icon_toRight = "navigate_next")
+    navcontrols(params::Dict; icon_menu = "menu", icon_toLeft = "navigate_before", icon_toRight = "navigate_next")
 
 Returns a list of three buttons that link to the menu, to the previous slide, and to the next slide respectively.
 """
-function navcontrols(params::Dict; color = "rgb(31, 31, 31)",
-    # see https://v1.quasar.dev/vue-components/icon#image-icons
-    icon_menu =    "d='M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z'", 
-    icon_toLeft =  "d='M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12l4.58-4.59z'", 
-    icon_toRight = "d='M10.02 6L8.61 7.41 13.19 12l-4.58 4.59L10.02 18l6-6-6-6z'")
-    iconstart = "img:data:image/svg+xml;charset=utf8,<svg xmlns='http://www.w3.org/2000/svg' height='24px' viewBox='0 0 24 24' width='24px'><path d='M0 0h24v24H0V0z' fill='none'/><path "
-    iconend = " fill='$color'/></svg>"
+function navcontrols(params::Dict; icon_menu = "menu", icon_toLeft = "navigate_before", icon_toRight = "navigate_next")
     URLid = params[:URLid]
     drawerstr = get(params, :drawerstr, "drawer$URLid")
-    [btn("",icon=startswith(icon_menu, "d=") ? iconstart * icon_menu * iconend : icon_menu, 
-    @click("$drawerstr = ! $drawerstr"), class = "navcontrol navcontrol-menu"),
-    btn("",icon=startswith(icon_toLeft, "d=") ? iconstart * icon_toLeft * iconend : icon_toLeft, 
-    @click("previous($URLid)"), class = "navcontrol navcontrol-toLeft"),
-    btn("",icon=startswith(icon_toRight, "d=") ? iconstart * icon_toRight * iconend : icon_toRight, 
-    @click("next($URLid)"), class = "navcontrol navcontrol-toRight")]
+    [btn("",icon=icon_menu, @click("$drawerstr = ! $drawerstr")),
+    btn("",icon=icon_toLeft, @click("previous($URLid)")),
+    btn("",icon=icon_toRight, @click("next($URLid)"))]
 end
 
 macro navcontrols(exprs...)
