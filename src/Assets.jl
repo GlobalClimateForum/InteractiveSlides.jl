@@ -103,7 +103,7 @@ cwd_genie() = AS_EXECUTABLE[] ? pwd() : genie_path
 
 function Genie.Assets.channels(channel::AbstractString = Genie.config.webchannels_default_route) :: String
     AS_EXECUTABLE[] && println("Stipple and Genie assets need to be in " * joinpath(cwd_genie(), "assets"))
-    string(Genie.Assets.js_settings(channel), Genie.Assets.embedded(Genie.Assets.asset_file(; cwd = pwd(), type = "js", file = "channels")))
+    string(Genie.Assets.js_settings(channel), Genie.Assets.embedded(Genie.Assets.asset_file(; cwd = cwd_genie(), type = "js", file = "channels")))
 end
 
 function Genie.Assets.webthreads(channel::String = Genie.config.webthreads_default_route) :: String
