@@ -88,7 +88,12 @@ function standard_assets(max_num_teams, use_Stipple_theme::Bool; local_pkg_asset
     set_watchers(max_num_teams)
     set_methods(max_num_teams)
     push!(Stipple.Layout.THEMES, () -> [Stipple.stylesheet("css/theme.css"), ""])
-    Stipple.DEPS[:hljs] = () -> [Stipple.script("setTimeout('hljs.highlightAll()', 1000); setTimeout('hljs.highlightAll()', 10000);")]
+    Stipple.DEPS[:appended_script] = () -> [Stipple.script("
+    setTimeout('hljs.highlightAll()', 1000); 
+    setTimeout('hljs.highlightAll()', 10000);
+    setTimeout('pmodel.is_fully_loaded ? null : (pmodel.push = Math.floor(Math.random() * 10))', 5000);
+    setTimeout('pmodel.is_fully_loaded ? null : (pmodel.push = Math.floor(Math.random() * 10))', 10000);
+    ")]
     Genie.Router.route("/css/MaterialIcons-Regular.ttf") do 
         Genie.Router.serve_static_file(joinpath(@__DIR__, "style", "MaterialIcons-Regular.ttf"), root = "/")
     end

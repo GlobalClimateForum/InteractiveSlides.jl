@@ -9,6 +9,8 @@ function prep_pmodel_and_params!(pmodel, params)
     slidefield = ModelManager.getslidefield(pmodel, params[:URLid])
     slidefield[] = max(1, slidefield[]) # necessary because the model is initialized with slide_idx = 0
     Stipple.notify(slidefield)          # (otherwise slide 1 would be shown briefly upon loading, no matter the actual slide one is at)
+    pmodel.is_fully_loaded[] = true # at first, the model in the frontend has the value defined in ModelInit (in this case 'false'). 
+                                    # If this 'true' doesn't 'arrive', something went wrong, and the frontend will change pmodel.push (see Assets.jl)
     if get(params, :reset, "0") != "0" || pmodel.reset_required[]
         params[:init] = true
         ModelManager.delete_listeners()
