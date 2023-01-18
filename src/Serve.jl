@@ -71,7 +71,7 @@ function serve_presentation(PresModel::DataType, gen_content::Function; as_execu
         params = merge!(Dict{Symbol, Any}(kwargs), Genie.params())
         prep_pmodel_and_params!(pmodel, params)
         @info "Time to build HTML:"
-        @time Build.presentation(pmodel, gen_content, params, Assets.get_assets(); isdev, qview) |> Stipple.html 
+        @time Build.presentation(pmodel, gen_content, params, Assets.get_assets(); isdev, qview, use_Stipple_theme) |> Stipple.html 
     end
 end
 
