@@ -1,17 +1,17 @@
 module Assets
 import ..Genie, ..Stipple, ..StippleUI, StipplePlotly, ..AS_EXECUTABLE
 
-function add_js(file::AbstractString; ext = ".js", basedir = @__DIR__, subfolder = "", prefix = "", kwargs...)
+function add_js(file::AbstractString; ext = ".js", basedir = @__DIR__, subfolder = "", prefix = "", content_type = :javascript, kwargs...)
     file = replace(file, ext => "")
     Genie.Router.route(Genie.Assets.asset_path(file; ext, package = "InteractiveSlides.jl", type = "", prefix, kwargs...)) do
     Genie.Renderer.WebRenderable(
         Genie.Assets.embedded(Genie.Assets.asset_file(cwd=basedir; prefix, type = subfolder, ext, file)),
-    ext == ".js" ? :javascript : :css) |> Genie.Renderer.respond
+        content_type) |> Genie.Renderer.respond
     end
     filename = splitpath(file)[end]
     if ext == ".js"
         Stipple.DEPS[Symbol(file)] = () -> [Stipple.script(src = "/interactiveslides.jl/$(lowercase(filename)).js")]
-    else
+    elseif ext == ".css"
         pushfirst!(Stipple.Layout.THEMES, () -> [Stipple.stylesheet("/interactiveslides.jl/$(lowercase(filename)).css"), ""])
     end
 end
@@ -80,7 +80,7 @@ function standard_assets(max_num_teams, use_Stipple_theme::Bool; local_pkg_asset
         for newasset in ["plotly2.min", "resizesensor.min", "lodash.min", "vueresize.min", "vueplotly.min", "sentinel.min", "syncplot", "quasar.umd.min"]
             add_js(newasset; basedir, subfolder) #StipplePlotly and StippleUI assets
         end
-        add_js("quasar.min"; ext = ".css", basedir, subfolder = joinpath("assets", "css"))
+        add_js("quasar.min"; ext = ".css", basedir, subfolder = joinpath("assets", "css"), content_type = :css)
     end
     add_js("timer"; basedir, subfolder)
     add_js("hotkeys"; basedir, subfolder)
@@ -91,15 +91,11 @@ function standard_assets(max_num_teams, use_Stipple_theme::Bool; local_pkg_asset
     Stipple.DEPS[:appended_script] = () -> [Stipple.script("
     setTimeout('hljs.highlightAll()', 1000); 
     setTimeout('hljs.highlightAll()', 10000);
-    setTimeout('pmodel.is_fully_loaded ? null : (pmodel.push = Math.floor(Math.random() * 10))', 5000);
-    setTimeout('pmodel.is_fully_loaded ? null : (pmodel.push = Math.floor(Math.random() * 10))', 10000);
-    ")]
-    Genie.Router.route("/css/MaterialIcons-Regular.ttf") do 
-        Genie.Router.serve_static_file(joinpath(@__DIR__, "style", "MaterialIcons-Regular.ttf"), root = "/")
-    end
-    Genie.Router.route("/css/InteractiveSlides.css") do 
-        Genie.Router.serve_static_file(joinpath(@__DIR__, "style", "InteractiveSlides.css"), root = "/")
-    end
+    setTimeout('pmodel.is_fully_loaded ? null : (pmodel.push_again = Math.floor(Math.random() * 10))', 5000);
+    setTimeout('pmodel.is_fully_loaded ? null : (pmodel.push_again = Math.floor(Math.random() * 10))', 10000);
+    ", defer = true)]
+    add_js("InteractiveSlides"; basedir, subfolder = "style", ext = ".css", content_type = :css)
+    add_js("MaterialIcons-Regular"; basedir, subfolder = "style", ext = ".woff2", content_type = :fontwoff2)
 end
 
 #Genie assets

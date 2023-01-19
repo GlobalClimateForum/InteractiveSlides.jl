@@ -34,7 +34,7 @@ Mixers.@mix Stipple.@with_kw struct presentation!
     @addfields("slide_state", ::Int, 1)
     @addfields("drawer", ::Bool, false)
     @addfields("drawer_shift", ::Bool, false)
-    push::R{Int} = 0
+    push_again::R{Int} = 0
     is_fully_loaded::R{Bool} = false
 end
 
@@ -46,7 +46,7 @@ function create_pmodel(PresentationModel)
         push!(pmodel)        
     end
 
-    Stipple.on(pmodel.push) do _
+    Stipple.on(pmodel.push_again) do _
         push!(pmodel)        
     end
 
