@@ -8,7 +8,9 @@ function save(pmodel, params, ref, filename = string(typeof(value)); dirname = "
                 try mkdir(dirname) catch end
                 suffix = Dates.format(Dates.now(), dateformat)
                 if typeof(ref[]) <: DataTable
-                    CSV.write(joinpath(dirname, "$filename $suffix.csv"), ref[].data)
+                    open(joinpath(dirname, "$filename $suffix.csv"), "w") do io
+                        CSV.write(io, ref[].data)
+                    end
                 else
                     open(joinpath(dirname, "$filename $suffix.html"), "w") do io
                         write(io, ref[])
