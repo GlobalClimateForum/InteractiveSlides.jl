@@ -3,6 +3,7 @@ using Reexport
 @reexport using Stipple, StippleUI, StipplePlotly
 
 include("shared.jl")
+include("overwrite.jl")
 
 include("ModelInit.jl")
 @reexport using .ModelInit

@@ -79,10 +79,6 @@ function serve_presentation(PresModel::DataType, gen_content::Function; as_execu
     end
 end
 
-function Stipple.root(app::Type{M})::String where {M<:Stipple.ReactiveModel}
-    "pmodel"
-end
-
 function __init__()
     Genie.Configuration.config!(path_build = joinpath(pwd(), "tmp", "build"))
 end
