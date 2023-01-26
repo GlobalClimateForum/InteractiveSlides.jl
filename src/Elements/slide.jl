@@ -1,4 +1,6 @@
-export Slide, slide, titleslide, controllerslide, simpleslide, @slide, @titleslide, @controllerslide, @simpleslide
+export Slide
+export slide, titleslide, controllerslide, simpleslide
+export @slide, @titleslide, @controllerslide, @simpleslide
 
 struct Slide
     title::String
@@ -52,6 +54,8 @@ function simpleslide(slides, params, heading, content...; contentstyle = "", con
     style = "height:100%; display:flex;" * contentstyle
     slide(slides, params, heading, Html.div([content...], style = style, class = "col " * contentclass); class = "column", kwargs...)
 end
+
+####################### CONVENIENCE MACROS ####################
 
 """
     @slide(exprs...)

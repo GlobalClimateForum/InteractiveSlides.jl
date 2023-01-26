@@ -1,6 +1,10 @@
+# https://github.com/GenieFramework/Stipple.jl/issues/148
+
 function Stipple.root(app::Type{M})::String where {M<:Stipple.ReactiveModel}
     "pmodel"
 end
+
+# below code disables the default behavior of generating a session file (just in order to reduce general overhead)
 
 function Stipple.sessionid(; encrypt::Bool = true) :: String
   ""

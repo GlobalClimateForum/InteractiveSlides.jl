@@ -1,8 +1,8 @@
 module ModelManager
 using ..Stipple
 import ..to_fieldname, ..eqtokw!
-export use_field!, use_fields!, new_listener, @new_listener, table_listener, @table_listener
-export @use_field!, @use_fields!, getslidefield, @getslidefield, getstatefield, @getstatefield #convenience functionss
+export use_field!, use_fields!, new_listener, getslidefield, table_listener, getstatefield
+export @use_field!, @use_fields!, @new_listener, @getslidefield, @table_listener, @getstatefield
 
 mutable struct ManagedField
     str::String
@@ -60,7 +60,20 @@ let listeners = Observables.ObserverFunction[] #https://stackoverflow.com/questi
 end
 
 """
-    new_listener
+    getslidefield(pmodel::ReactiveModel, team_id::Int)
+
+Simply returns the field which stores the current slide id for the given team.
+"""
+function getslidefield(pmodel::ReactiveModel, team_id::Int)
+    getfield(pmodel, Symbol("slide_id", team_id))
+end
+
+function getstatefield(pmodel::ReactiveModel, team_id::Int)
+    getfield(pmodel, Symbol("slide_state", team_id))
+end
+
+"""
+    new_listener(fun::Function, field::ManagedField, params::Dict)
 
 Takes a function and a field (either a ManagedField or a direct reference to a field). 
 Sets up a listener accordingly (see https://genieframework.com/docs/stipple/v0.25/API/stipple.html#Observables.on).
@@ -133,7 +146,7 @@ function table_listener(params::Dict, table, rows, field, available_choices; not
     end
 end
 
-####################### CONVENIENCE FUNCTIONS ####################
+####################### CONVENIENCE MACROS ####################
 
 """
     @use_field!(exprs...)
@@ -174,14 +187,6 @@ Convenience macro which calls `table_listener` (see `?table_listener`). See ?@sl
 """
 macro table_listener(exprs...)
     esc(:(table_listener(params, $(eqtokw!(exprs)...))))
-end
-
-function getslidefield(pmodel::ReactiveModel, team_id::Int)
-    getfield(pmodel, Symbol("slide_id", team_id))
-end
-
-function getstatefield(pmodel::ReactiveModel, team_id::Int)
-    getfield(pmodel, Symbol("slide_state", team_id))
 end
 
 macro getslidefield(team_id)
