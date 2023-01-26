@@ -45,7 +45,7 @@ let listeners = Observables.ObserverFunction[] #https://stackoverflow.com/questi
 
     function new_listener(fun::Function, field::Reactive, params::Dict)
         if params[:init]
-            listener = on(field, weak = true) do val
+            listener = on(field) do val
                 fun(val)
             end
             notify(field) #to immediately initialize the value
