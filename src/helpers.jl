@@ -1,35 +1,46 @@
 import CSV
-export save, @save
+export save_on, @save_on
 
-function save(pmodel, params, ref, filename = string(typeof(value)); dirname = "out", dateformat = "yy-mm-dd at HH:MM")
+function save_field(field_ref, dir, filename, dateformat)
+    try mkdir(dir) catch end
+    suffix = Dates.format(Dates.now(), dateformat)
+    if typeof(field_ref[]) <: DataTable
+        open(joinpath(dir, "$filename $suffix.csv"), "w") do io
+            CSV.write(io, field_ref[].data)
+        end
+    else
+        open(joinpath(dir, "$filename $suffix.html"), "w") do io
+            write(io, field_ref[])
+        end
+    end
+end
+
+"""
+    save_on(pmodel, params, field, filename = string(typeof(value)); dir = "out", dateformat = "yy-mm-dd at HH:MM", on = (val) -> val == pmodel.num_slides[])
+
+Function which adds a listener to the given field, which then saves the contents of that field in a file (in dir) if the given condition is true.
+Default is to save the field once any team reaches the last slide.
+"""
+function save_on(pmodel, params, field_ref, filename = string(typeof(value)); 
+    dir = "out", dateformat = "yy-mm-dd at HH:MM", on = (val) -> val == pmodel.num_slides[])
     for t_id in 1:params[:num_teams]
-        @new_listener(@getslidefield(t_id)) do id
-            if id == pmodel.num_slides[]
-                try mkdir(dirname) catch end
-                suffix = Dates.format(Dates.now(), dateformat)
-                if typeof(ref[]) <: DataTable
-                    open(joinpath(dirname, "$filename $suffix.csv"), "w") do io
-                        CSV.write(io, ref[].data)
-                    end
-                else
-                    open(joinpath(dirname, "$filename $suffix.html"), "w") do io
-                        write(io, ref[])
-                    end
-                end
+        @new_listener(@getslidefield(t_id)) do val
+            if on(val)
+                save_field(field_ref, dir, filename, dateformat)
             end
         end
     end
 end
 
-function save(pmodel, params, field::ModelManager.ManagedField, filename = field.str; kwargs...)
-    save(pmodel, params, field.ref, filename; kwargs...)
+function save_on(pmodel, params, field::ModelManager.ManagedField, filename = field.str; kwargs...)
+    save_on(pmodel, params, field.ref, filename; kwargs...)
 end
 
 """
-    @save(field, exprs...)
+    @save_on(field, exprs...)
 
-Convenience macro which calls `save` (see `?save`). See ?@slide for more info on convenience macros.
+Convenience macro which calls `save_on` (see `?save_on`). See ?@slide for more info on convenience macros.
 """
-macro save(field, exprs...)
-    esc(:(save(pmodel, params, $field, $(eqtokw!(exprs)...))))
+macro save_on(field, exprs...)
+    esc(:(save_on(pmodel, params, $field, $(eqtokw!(exprs)...))))
 end
