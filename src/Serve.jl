@@ -51,11 +51,12 @@ julia> serve_presentation(PresentationModel, gen_content; num_teams_default = 2,
 """
 function serve_presentation(PresModel::DataType, gen_content::Function; as_executable = false, local_pkg_assets = as_executable, custom_landing = false, custom_settings = false,
                             num_teams_default::Int = 1, max_num_teams::Int = MAX_NUM_TEAMS, use_Stipple_theme::Bool = false, isdev = false, qview = "hHh lpR fFf", 
-                            keep_alive_frequency = 15000, kwargs...)
+                            keep_alive_frequency = 15000, connection_attempts = 20, kwargs...)
     
     Assets.standard_assets(max_num_teams, use_Stipple_theme; local_pkg_assets)
     AS_EXECUTABLE[] = as_executable
-    Genie.config.webchannels_keepalive_frequency = keep_alive_frequency
+    Genie.config.webchannels_subscription_trails = connection_attempts
+    Genie.config.webchannels_connection_attempts = connection_attempts
 
     pmodel = ModelInit.get_or_create_pmodel(PresModel; num_teams_default, max_num_teams)
 
