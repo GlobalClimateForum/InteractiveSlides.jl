@@ -11,7 +11,7 @@ function presentation(pmodel::ReactiveModel, gen_content::Function, params::Dict
     pmodel.isprocessing[] = false
     pmodel.num_slides[] = length(slides)
     pmodel.num_states[] = getproperty.(slides, :num_states)
-    page(pmodel, prepend = [style("[v-cloak] {display: none}"), stylesheet("css/InteractiveSlides.css")], v__cloak = true, core_theme = use_Stipple_theme,
+    page(pmodel, prepend = style("[v-cloak] {display: none}"), v__cloak = true, core_theme = use_Stipple_theme,
     [
         StippleUI.Layouts.layout(view = qview, [ #see https://v1.quasar.dev/layout/layout#understanding-the-view-prop
             auxUI,
