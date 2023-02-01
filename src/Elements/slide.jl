@@ -49,7 +49,7 @@ function titleslide(args...; class = "text-center flex-center"::String, title = 
 end
 
 function controllerslide(slides, params, args...; class = "text-center flex-center"::String, title = ""::String, HTMLattr...)
-    params[:URLid] > 0 ? slides : slide(slides, params, args...; class = "controllerslide " * class, title, HTMLattr...)
+    params[:URLid] != 99 ? slides : slide(slides, params, args...; class = "controllerslide " * class, title, HTMLattr...)
 end
 
 function simpleslide(slides, params, heading, content...; contentstyle = "", contentclass = "flex-center", kwargs...)

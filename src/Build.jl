@@ -2,7 +2,7 @@ module Build
 using ..Stipple, ..StippleUI
 
 function presentation(pmodel::ReactiveModel, gen_content::Function, params::Dict{Symbol, Any}, assets; isdev, qview, use_Stipple_theme)
-    params[:URLid] > pmodel.num_teams[] && return "Only $(pmodel.num_teams[]) teams can participate as per current settings."
+    params[:team_id] > pmodel.num_teams[] && return "Only $(pmodel.num_teams[]) teams can participate as per current settings."
     if pmodel.isprocessing[] && params[:init] && !isdev #without this check, loading the page multiple time upon initialiation results in an error (e.g. when double-clicking link).
         return page(pmodel, span("The presentation had not been fully loaded yet. Please reload this page.", class = "errormsg"), assets)
     end
@@ -34,8 +34,9 @@ end
 
 function landing(pmodel::ReactiveModel)
     page(pmodel, [h2("Welcome", style = "margin: 1rem"), list(
-        append!([item(item_section(btn("Team $id", type = "a", href = "$id"))) for id in 1:pmodel.num_teams[]], 
-            [item(item_section(btn("Controller", type = "a", href = "0"))), item(item_section(btn("Settings", type = "a", href = "settings")))])
+        append!([item(item_section(btn(id > 0 ? "Team $id" : "Plenum", type = "a", href = "$id"))) for id in 0:pmodel.num_teams[]], 
+            [item(item_section(btn("Controller", type = "a", href = "99"))),
+             item(item_section(btn("Settings", type = "a", href = "settings")))])
         )], class = "landing-page")
 end
 

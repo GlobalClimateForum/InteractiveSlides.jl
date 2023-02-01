@@ -27,9 +27,12 @@ Mixers.@mix Stipple.@with_kw struct presentation!
     max_num_teams::R{Int} = 1
     num_slides::R{Int} = 0
     num_states::R{Vector{Int}} = []
-    slide_id0::R{Int} = 1
+    slide_id0::R{Int} = 0
     slide_state0::R{Int} = 1
     drawer0::R{Bool} = false
+    slide_id99::R{Int} = 0
+    slide_state99::R{Int} = 1
+    drawer99::R{Int} = false
     @addfields("slide_id", ::Int, 0)
     @addfields("slide_state", ::Int, 1)
     @addfields("drawer", ::Bool, false)
