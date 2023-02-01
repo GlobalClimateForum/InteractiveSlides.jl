@@ -30,7 +30,9 @@ function slide(slides::Vector{Slide}, params::Dict, HTMLelem...; num_states = 1,
     HTMLattr[:id] = slide_id
     if isempty(title) 
         try
-            title = strip(match(r"(?<=\<h[1-2]\>).+(?=<)", String(HTMLelem[1])).match)
+            title = match(r"(?<=\<h[1-2]\>).+(?=<)", String(HTMLelem[1])).match
+            title = replace(title, "<br>" => " - ")
+            title = strip(replace(title, r"<[^>]*>" => ""))
         catch
             title = "Untitled"; println("Warning: Untitled slide")
         end
