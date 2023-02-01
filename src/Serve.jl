@@ -55,6 +55,7 @@ function serve_presentation(PresModel::DataType, gen_content::Function; as_execu
     
     Assets.standard_assets(max_num_teams, use_Stipple_theme; local_pkg_assets)
     AS_EXECUTABLE[] = as_executable
+    Genie.config.webchannels_keepalive_frequency = keep_alive_frequency
     Genie.config.webchannels_subscription_trails = connection_attempts
     Genie.config.webchannels_connection_attempts = connection_attempts
 
