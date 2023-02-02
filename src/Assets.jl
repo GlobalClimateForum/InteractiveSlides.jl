@@ -84,16 +84,10 @@ function standard_assets(max_num_teams, use_Stipple_theme::Bool; local_pkg_asset
     end
     add_js("timer"; basedir, subfolder)
     add_js("hotkeys"; basedir, subfolder)
-    add_js("onSwitch"; basedir, subfolder)
+    add_js("base"; basedir, subfolder)
     set_watchers(max_num_teams)
     set_methods(max_num_teams)
     push!(Stipple.Layout.THEMES, () -> [Stipple.stylesheet("css/theme.css"), ""])
-    Stipple.DEPS[:appended_script] = () -> [Stipple.script("
-    setTimeout('hljs.highlightAll()', 1000); 
-    setTimeout('hljs.highlightAll()', 10000);
-    setTimeout('pmodel.is_fully_loaded ? null : (pmodel.push_again = Math.floor(Math.random() * 10))', 5000);
-    setTimeout('pmodel.is_fully_loaded ? null : (pmodel.push_again = Math.floor(Math.random() * 10))', 10000);
-    ", defer = true)]
     add_js("InteractiveSlides"; basedir, subfolder = "style", ext = ".css", content_type = :css)
     add_js("MaterialIcons-Regular"; basedir, subfolder = "style", ext = ".woff2", content_type = :fontwoff2)
 end

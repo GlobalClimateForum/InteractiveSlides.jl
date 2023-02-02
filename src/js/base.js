@@ -14,10 +14,23 @@ function onSwitch(newval, oldval, URLid) {
       }
     }
   }
-  
-  setTimeout('onSwitch()', 500); 
-  setTimeout('onSwitch()', 1000);
-  setTimeout('onSwitch()', 3000);
+
+var initialize_attempt = 0;
+var intervalID = setInterval(function () {
+
+    onSwitch();
+    try {
+      hljs.highlightAll()
+    }
+    catch (err) {
+      initialize_attempt == 4 ? (console.info("No highlight.js detected.")) : null
+    }
+    pmodel.is_fully_loaded ? null : (pmodel.push_again = Math.floor(Math.random() * 10))
+
+    if (++initialize_attempt === 5) {
+      window.clearInterval(intervalID);
+    }
+}, 5000);
   
 
 function next(URLid) {
